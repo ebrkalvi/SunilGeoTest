@@ -1,0 +1,3 @@
+{ "name" : "Geo Testing server"
+, "main" : "geo.js"
+}
