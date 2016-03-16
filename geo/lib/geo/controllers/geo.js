@@ -2,8 +2,8 @@ var exports = module.exports;
 var mongo = require('mongodb');
 
 var Server = mongo.Server,
-    Db = mongo.Db,
-    BSON = mongo.BSONPure;
+        Db = mongo.Db,
+        BSON = mongo.BSONPure;
 
 var server = new Server('52.9.101.199', 27017, {auto_reconnect: true});
 db = new Db('geodb', server);
@@ -61,9 +61,16 @@ exports.findById = function(req, res) {
 };
 
 exports.findAll = function(req, res) {
+    //var includes =
+    var excludes = ['metxms.citrix.com', /[^.\s]+\.apple\.com/g]
     db.collection('actions', function(err, collection) {
-        collection.find().toArray(function(err, items) {
-            res.send(items);
+        collection.find({'request.host': {$nin: excludes}}).limit(50).sort({'request.timestamp_end': -1}).toArray(function(err, items) {
+            var template = __dirname + '/../views/index';
+            res.render(template, {
+                           welcomeMessage: "Welcome!",
+                           excludes: excludes,
+                           actions: items
+                       })
         });
     });
 };

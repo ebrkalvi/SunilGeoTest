@@ -1,5 +1,6 @@
 require('app-module-path').addPath(__dirname + '/lib');
 var bodyParser = require('body-parser');
+var exphbs  = require('express-handlebars');
 
 exports.setup = function(runningApp, callback) {
     // Nothing ever comes from "x-powered-by", but a security hole
@@ -11,9 +12,14 @@ exports.setup = function(runningApp, callback) {
                                          }));
     runningApp.use(bodyParser.json());
 
-    // Choose your favorite view engine(s)
+    //
+    var hbs = exphbs.create({
+        defaultLayout: 'main',
+        helpers: require("./public/js/helpers.js").helpers
+    });
+
+    runningApp.engine('handlebars', hbs.engine);
     runningApp.set('view engine', 'handlebars');
-    runningApp.engine('handlebars', require('hbs').__express);
 
     runningApp.use('/geo', require('geo')); // attach to sub-route
 
