@@ -5,7 +5,7 @@ var Server = mongo.Server,
     Db = mongo.Db,
     BSON = mongo.BSONPure;
 
-var server = new Server('52.53.242.3', 27017, {auto_reconnect: true});
+var server = new Server('52.8.12.64', 27017, {auto_reconnect: true});
 db = new Db('geodb', server);
 
 var populateDB = function() {

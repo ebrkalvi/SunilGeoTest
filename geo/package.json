@@ -24,7 +24,8 @@
     "metalogger": "*",
     "nodebootstrap-htmlapp": "*",
     "nodebootstrap-server": "*",
-    "yaml": "*"
+    "yaml": "*",
+    "mongodb": "*"
   },
   "devDependencies": {
     "after": "^0.8.1",
