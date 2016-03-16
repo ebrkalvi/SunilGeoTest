@@ -1,7 +1,7 @@
 import json,httplib;
 
 def rest_request(path, jsonData):
-    connection = httplib.HTTPConnection('52.53.242.3', 3000);
+    connection = httplib.HTTPConnection('52.9.101.199', 3000);
     connection.connect()
     connection.request('POST', path, jsonData, {'Content-type': 'application/json', 'Accept': 'text/plain'})
 
