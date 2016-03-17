@@ -45,6 +45,7 @@
                                 <th>Execution time (ms)</th>
                                 <th>Response time (ms)</th>
                                 <th>Total time (ms)</th>
+                                <th>Response size</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,6 +57,7 @@
                                 <td>{{timeDiff response.timestamp_start request.timestamp_end}}</td>
                                 <td>{{timeDiff response.timestamp_end response.timestamp_start}}</td>
                                 <td>{{timeDiff response.timestamp_end request.timestamp_start}}</td>
+                                <td>{{formatBytes response.contentLength}}</td>
                             </tr>
                             {{/actions}}
                         </tbody>
