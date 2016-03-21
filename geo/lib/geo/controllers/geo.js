@@ -119,9 +119,9 @@ exports.sessions = function (req, res) {
             'createdAt': -1
         }).toArray(function (err, items) {
             console.log("count=", items.length)
-            for(var i=0; i<items.length; ++i)
-                    if(items[i]._id == activeSession)
-                        items[i].active = true
+            for (var i = 0; i < items.length; ++i)
+                if (items[i]._id == activeSession)
+                    items[i].active = true
             var template = __dirname + '/../views/sessions';
             res.render(template, {
                 welcomeMessage: "Welcome!",
@@ -146,8 +146,23 @@ exports.deleteSession = function (req, res) {
                     'error': 'An error has occurred - ' + err
                 });
             } else {
-                console.log('' + result + ' document(s) deleted');
-                res.send(req.body);
+                console.log('Sessions ' + result + ' document(s) deleted');
+                db.collection('actions', function (err, collection) {
+                    collection.remove({
+                        'sid': new BSON.ObjectID(id)
+                    }, {
+                        safe: true
+                    }, function (err, result) {
+                        if (err) {
+                            res.send({
+                                'error': 'An error has occurred - ' + err
+                            });
+                        } else {
+                            console.log('Actions' + result + ' document(s) deleted');
+                            res.send(req.body);
+                        }
+                    });
+                });
             }
         });
     });
@@ -186,7 +201,7 @@ exports.actions = function (req, res) {
 
 exports.addGeo = function (req, res) {
     var geo = req.body;
-    if(activeSession)
+    if (activeSession)
         geo.sid = new BSON.ObjectID(activeSession)
     console.log('Adding geo: ' + JSON.stringify(geo));
     db.collection('actions', function (err, collection) {
