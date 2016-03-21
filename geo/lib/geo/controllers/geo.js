@@ -106,7 +106,7 @@ exports.addSession = function (req, res) {
                 });
             } else {
                 console.log('Success: ' + JSON.stringify(result));
-                activeSession = result.ops[0]._id
+                activeSession = result.ops[0]._id+""
                 res.send(activeSession);
             }
         });
@@ -118,7 +118,7 @@ exports.sessions = function (req, res) {
         collection.find().limit(50).sort({
             'createdAt': -1
         }).toArray(function (err, items) {
-            console.log("count=", items.length)
+            console.log("count=", items.length, activeSession)
             for (var i = 0; i < items.length; ++i)
                 if (items[i]._id == activeSession)
                     items[i].active = true
