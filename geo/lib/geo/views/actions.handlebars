@@ -12,7 +12,7 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
-                <li><a href="#link">About   </a></li>
+                    <li><a href="#link">About   </a></li>
                 </ul>
                 <!-- form class="navbar-form navbar-right">
                     <input type="text" class="form-control" placeholder="Search...">
@@ -24,17 +24,17 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12 col-md-12 main">
-                <h1 class="page-header">Jamba Juice</h1>
-
+                <h1 class="page-header">{{session.name}} - {{session.appName}}</h1>
+                <h4 class="sub-header pull-right">{{session.createdAt}}</h4>
                 <div class="row placeholders">
-                <h4 class="sub-header">Excluded hosts:</h4>
+                    <h4 class="sub-header">Excluded hosts:</h4>
                     <ul>
-                    {{#each excludes}}
+                        {{#each excludes}}
                         <li>{{ this }}</li>
-                    {{/each}}
-                    </ul
+                        {{/each}}
+                    </ul>
                 </div>
-
+                <a class="btn btn-large btn-info" href="/geo">Sessions</a>
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>

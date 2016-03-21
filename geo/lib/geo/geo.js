@@ -6,7 +6,12 @@ router.models       = require('./models');
 
 // Module's Routes. Please note this is actually under /hello, because module is attached under /hello
 
-router.get('/', router.callbacks.findAll);
+router.post('/session', router.callbacks.addSession);
+router.post('/session/activate', router.callbacks.activateSession);
+router.get('/', router.callbacks.sessions);
+router.delete('/session', router.callbacks.deleteSession);
+
+router.get('/actions', router.callbacks.actions);
 router.get('/:id', router.callbacks.findById);
 router.post('/', router.callbacks.addGeo);
 router.put('/:id', router.callbacks.updateGeo);
