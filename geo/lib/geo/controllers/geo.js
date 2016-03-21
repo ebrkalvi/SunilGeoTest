@@ -164,7 +164,7 @@ exports.actions = function (req, res) {
         var excludes = ['metxms.citrix.com', /[^.\s]+\.apple\.com/g]
         db.collection('actions', function (err, collection) {
             collection.find({
-                sid: req.query.sid,
+                sid: new BSON.ObjectID(req.query.sid),
                 'request.host': {
                     $nin: excludes
                 }
