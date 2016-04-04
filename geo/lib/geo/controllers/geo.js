@@ -12,6 +12,7 @@ var server = new Server('52.9.101.199', 27017, {
 db = new Db('geodb', server);
 
 var activeSession
+var currentAction
 var populateDB = function () {
     var actions = {
         "request": {
@@ -82,10 +83,26 @@ exports.findById = function (req, res) {
     });
 };
 
+exports.setCurrentAction = function (req, res) {
+    currentAction = req.body.action
+    console.log('setCurrentAction: ' + currentAction);
+    res.send(currentAction);
+};
+
 exports.activateSession = function (req, res) {
     activeSession = req.body.sid
     console.log('Activated Session: ' + activeSession);
     res.send(activeSession);
+};
+
+exports.deactivateSession = function (req, res) {
+    if(req.body.sid == activeSession) {
+        activeSession = undefined
+        currentAction = undefined
+        console.log('De-Activated Session: ' + req.body.sid);
+        res.send(req.body.sid);
+    } else
+        res.send("");
 };
 
 exports.addSession = function (req, res) {
@@ -106,7 +123,7 @@ exports.addSession = function (req, res) {
                 });
             } else {
                 console.log('Success: ' + JSON.stringify(result));
-                activeSession = result.ops[0]._id+""
+                activeSession = result.ops[0]._id + ""
                 res.send(activeSession);
             }
         });
@@ -200,9 +217,13 @@ exports.actions = function (req, res) {
 };
 
 exports.addGeo = function (req, res) {
+    if (!activeSession)
+        res.send({
+            'error': 'No active session!'
+        });
     var geo = req.body;
-    if (activeSession)
-        geo.sid = new BSON.ObjectID(activeSession)
+    geo.sid = new BSON.ObjectID(activeSession)
+    geo.action = currentAction
     console.log('Adding geo: ' + JSON.stringify(geo));
     db.collection('actions', function (err, collection) {
         collection.insert(geo, {
