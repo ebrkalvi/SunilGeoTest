@@ -7,7 +7,9 @@ router.models       = require('./models');
 // Module's Routes. Please note this is actually under /hello, because module is attached under /hello
 
 router.post('/session', router.callbacks.addSession);
+router.post('/session/currentAction', router.callbacks.setCurrentAction);
 router.post('/session/activate', router.callbacks.activateSession);
+router.post('/session/deactivate', router.callbacks.deactivateSession);
 router.get('/', router.callbacks.sessions);
 router.delete('/session', router.callbacks.deleteSession);
 
