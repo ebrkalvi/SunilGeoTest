@@ -40,6 +40,7 @@
                         <thead>
                             <tr>
                                 <th>Requested At</th>
+                                <th>Action</th>
                                 <th>URL</th>
                                 <th>Request time (ms)</th>
                                 <th>Execution time (ms)</th>
@@ -52,6 +53,7 @@
                             {{#actions}}
                             <tr>
                                 <td>{{formatTS request.timestamp_start}}</td>
+                                <td>{{action}}</td>
                                 <td><b>{{request.host}}</b>{{trimString request.path}}</td>
                                 <td>{{timeDiff request.timestamp_end request.timestamp_start}}</td>
                                 <td>{{timeDiff response.timestamp_start request.timestamp_end}}</td>

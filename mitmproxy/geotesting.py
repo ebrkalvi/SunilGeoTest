@@ -16,6 +16,7 @@ def response(context, flow):
             "scheme": flow.request.scheme,
             "host": flow.request.host,
             "path": flow.request.path,
+            "client_address": flow.client_conn.address,
             "timestamp_start": flow.request.timestamp_start,
             "timestamp_end": flow.request.timestamp_end
         },
