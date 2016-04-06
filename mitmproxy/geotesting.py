@@ -9,6 +9,12 @@ def rest_request(path, jsonData):
     print(resp)
     #result = json.loads(resp)
 
+def request(context, flow):
+    flow.request.__address = flow.request.headers["__address__"]
+    flow.request.__port = flow.request.headers["__port__"]
+    del flow.request.headers["__address__"]
+    del flow.request.headers["__port__"]
+
 def response(context, flow):
     rest_request("/geo", json.dumps({
         "request": {
@@ -16,7 +22,8 @@ def response(context, flow):
             "scheme": flow.request.scheme,
             "host": flow.request.host,
             "path": flow.request.path,
-            "client_address": flow.client_conn.address,
+            "client_address": flow.request.__address,
+            "client_port": flow.request.__port,
             "timestamp_start": flow.request.timestamp_start,
             "timestamp_end": flow.request.timestamp_end
         },
@@ -28,3 +35,5 @@ def response(context, flow):
             "contentLength": len(flow.response.content)
         }
     }))
+
+
