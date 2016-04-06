@@ -14,7 +14,8 @@ exports.setup = function(runningApp, callback) {
 
     //
     var hbs = exphbs.create({
-        defaultLayout: 'main',
+        defaultLayout: __dirname + '/views/layouts/main.handlebars',
+	layoutsDir: __dirname + '/views/layouts',
         helpers: require("./public/js/helpers.js").helpers
     });
 
