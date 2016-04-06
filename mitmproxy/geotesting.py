@@ -17,13 +17,13 @@ def request(context, flow):
 
 def response(context, flow):
     rest_request("/geo", json.dumps({
+        "client_address": flow.request.__address,
+        "client_port": flow.request.__port,
         "request": {
             "method": flow.request.method,
             "scheme": flow.request.scheme,
             "host": flow.request.host,
             "path": flow.request.path,
-            "client_address": flow.request.__address,
-            "client_port": flow.request.__port,
             "timestamp_start": flow.request.timestamp_start,
             "timestamp_end": flow.request.timestamp_end
         },
