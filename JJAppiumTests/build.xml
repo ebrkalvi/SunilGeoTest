@@ -23,7 +23,7 @@
 			<classpath refid="junit.class.path" />
 		</javac>
 	</target>
-	<target name="junit" depends="compile">
+        <target name="ios" depends="compile">
                 <junit printsummary="on" fork="true" showoutput="true" haltonfailure="yes">
 			<classpath refid="junit.class.path" />
 			<classpath>
@@ -37,7 +37,21 @@
 			</batchtest>
 		</junit>
 	</target>
-	<target name="main" depends="compile, junit">
-		<description>Main target</description>
+        <target name="android" depends="compile">
+                <junit printsummary="on" fork="true" showoutput="true" haltonfailure="yes">
+                        <classpath refid="junit.class.path" />
+                        <classpath>
+                                <pathelement location="${build.dir}" />
+                        </classpath>
+                        <formatter type="plain" usefile="false" />
+                        <batchtest todir="${test.report.dir}">
+                                <fileset dir="${src.dir}">
+                                        <include name="**/AndroidTestCaseRunner.java" />
+                                </fileset>
+                        </batchtest>
+                </junit>
+        </target>
+        <target name="main" depends="compile, android">
+                <description>Android target</description>
 	</target>
 </project>

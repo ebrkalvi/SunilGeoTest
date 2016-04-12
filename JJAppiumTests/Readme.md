@@ -4,4 +4,5 @@ Pre-requisites:
  - Xcode and Command Line Tools
  
 Running:
- - Execute "ant junit" in terminal
+ - Execute "ant android"
+ - Execute "ant ios"

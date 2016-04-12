@@ -16,15 +16,16 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import com.ebricks.testcase.AndroidSampleTestCase;
 
 public class AndroidTestCaseRunner {
-
-	static final String APP_PATH = "D:\\Workspace/SampleAppiumTest/resources/JambaJuice.apk";
-	
-	AndroidDriver<WebElement> driver;
-	
-	@Before
-	public void setUp() {
-		
-		DesiredCapabilities capabilities = new DesiredCapabilities();
+    
+    static final String APP_PATH = "/resources/JambaJuice.apk";
+    
+    AndroidDriver<WebElement> driver;
+    
+    @Before
+    public void setUp() {
+        System.out.println("Working Directory = " +
+                      System.getProperty("user.dir"));
+        DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("device", "Android");
         capabilities.setCapability(CapabilityType.BROWSER_NAME, ""); // Should be an empty string if testing an app.
         capabilities.setCapability(CapabilityType.VERSION, "4.4");
@@ -32,45 +33,45 @@ public class AndroidTestCaseRunner {
         capabilities.setCapability(CapabilityType.PLATFORM, "Android");
         capabilities.setCapability("platformName", "Android");
         
-		capabilities.setCapability("deviceName", "192.168.56.102:5555");
-		
-		capabilities.setCapability("app", APP_PATH);
-		
-		capabilities.setJavascriptEnabled(true);
-
+        capabilities.setCapability("deviceName", "92e8e4657ce3");
+        
+        capabilities.setCapability("app", System.getProperty("user.dir")+APP_PATH);
+        
+        capabilities.setJavascriptEnabled(true);
+        
         try {
-        	
-			//driver = new RemoteWebDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
-			
-			driver = new AndroidDriver<WebElement>(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
-			driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
-			
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	@Test
-	public void run() {
-		if(driver != null) {
-			AndroidSampleTestCase testCase = new AndroidSampleTestCase();
-			try {
-				testCase.runIt(driver);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				System.out.println("Failed to run testcase.");
-			}
-		} else {
-			System.out.println("Failed to initialize webdriver.");
-		}
-	}
-	
-	@After
-	public void tearDown() {
-		if(driver != null) {
-			driver.quit();
-		}
-	}
+            
+            //driver = new RemoteWebDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
+            
+            driver = new AndroidDriver<WebElement>(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
+            driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+            
+        } catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    @Test
+    public void run() {
+        if(driver != null) {
+            AndroidSampleTestCase testCase = new AndroidSampleTestCase();
+            try {
+                testCase.runIt(driver);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.out.println("Failed to run testcase.");
+            }
+        } else {
+            System.out.println("Failed to initialize webdriver.");
+        }
+    }
+    
+    @After
+    public void tearDown() {
+        if(driver != null) {
+            driver.quit();
+        }
+    }
 }
