@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 
 public class GeoTestingClient {
     static final String SERVER_ADDRESS = "http://52.9.101.199:3000";

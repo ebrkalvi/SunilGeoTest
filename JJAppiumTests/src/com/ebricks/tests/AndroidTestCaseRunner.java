@@ -34,9 +34,10 @@ public class AndroidTestCaseRunner {
         capabilities.setCapability("platformName", "Android");
         
         capabilities.setCapability("deviceName", "92e8e4657ce3");
-        
-        capabilities.setCapability("app", System.getProperty("user.dir")+APP_PATH);
-        
+        capabilities.setCapability("appPackage", "com.olo.jambajuice");
+        capabilities.setCapability("appActivity", "com.olo.jambajuice.Activites.NonGeneric.Splash.SplashActivity");//System.getProperty("user.dir")+APP_PATH);
+        //capabilities.setCapability("appActivity", "com.olo.jambajuice.Activites.NonGeneric.Splash.SplashActivity");
+
         capabilities.setJavascriptEnabled(true);
         
         try {

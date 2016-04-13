@@ -63,7 +63,7 @@ public class iOSSampleTestCase {
 			mGeoTestingClient.setCurrentAction("Clicked LogIn Button");
 			result = clickByXPath(
 					"//UIAApplication[1]/UIAWindow[1]/UIAButton[2]",
-					"LogIn Button");
+					"Clicked LogIn Button");
 		}
 
 		if (result) {
