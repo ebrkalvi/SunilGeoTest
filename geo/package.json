@@ -1,5 +1,5 @@
 {
-  "name": "Geo Testing tool",
+  "name": "geo_testing_tool",
   "version": "0.1.0",
   "author": "Sunil Reddy <sunilpro@gmail.com>",
   "description": "Global testing made easy",
@@ -26,7 +26,9 @@
     "nodebootstrap-server": "*",
     "yaml": "*",
     "mongodb": "*",
-    "express-handlebars": "*"
+    "express-handlebars": "*",
+    "express-ejs-layouts": "^0.1.0",
+    "ejs": "*"
   },
   "devDependencies": {
     "after": "^0.8.1",
