@@ -1,8 +1,8 @@
 {
-  "name": "nodebootstrap-based-app",
-  "private": true,
-  "description": "",
-  "author": "",
+  "name": "Geo Testing tool",
+  "version": "0.1.0",
+  "author": "Sunil Reddy <sunilpro@gmail.com>",
+  "description": "Global testing made easy",
   "license": "UNLICENSE",
   "main": "./server.js",
   "repository": {

@@ -13,45 +13,50 @@ import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.ebricks.geo.GeoTestingClient;
+
 public class AndroidSampleTestCase {
 
 	private AndroidDriver<WebElement> driver;
+	GeoTestingClient mGeoTestingClient;
 	public WebDriverWait wait;
 
+	public AndroidSampleTestCase(GeoTestingClient geoClient) {
+		mGeoTestingClient = geoClient;
+	}
+	
 	public void runIt(AndroidDriver<WebElement> driver) throws InterruptedException {
 		this.driver = driver;
 		wait = new WebDriverWait(driver, 30);
 		boolean result = true;// clickById("beginBtn", "Landing Screen");
-		
-
 
 		if (result) {
 			wait.until(ExpectedConditions.textToBePresentInElementLocated(By.id("signIn"), "Log In"));
-			//mGeoTestingClient.setCurrentAction("LogIn Screen");
+			mGeoTestingClient.setCurrentAction("LogIn Screen");
 			result = clickById("signIn", "LogIn Screen");
 		}
 
 		if (result) {
 			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("email")));
-			//mGeoTestingClient.setCurrentAction("Entering username");
+			mGeoTestingClient.setCurrentAction("Entering username");
 			result = textById("email", "sunil.reddy@ebricks-inc.com", null);
 		}
 
 		if (result) {
 			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("password")));
-			//mGeoTestingClient.setCurrentAction("Entering Password");
+			mGeoTestingClient.setCurrentAction("Entering Password");
 			result = textById("password", "ebricks", null);
 		}
 
 		if (result) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("signIn")));
-			//mGeoTestingClient.setCurrentAction("Clicked LogIn Button");
+			mGeoTestingClient.setCurrentAction("Clicked LogIn Button");
 			result = clickById("signIn", "Clicked LogIn Button");
 		}
 
 		if (result) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("menuBtn")));
-			//mGeoTestingClient.setCurrentAction("Menu Button");
+			mGeoTestingClient.setCurrentAction("Menu Button");
 			result = clickById("menuBtn", "Menu Button");
 		}
 
@@ -59,7 +64,7 @@ public class AndroidSampleTestCase {
 		Double screenHeightStart = dimensions.getHeight() * 0.8;
 		Double screenHeightEnd = dimensions.getHeight() * 0.2;
 		if (result) {
-			//mGeoTestingClient.setCurrentAction("Swipe down");
+			mGeoTestingClient.setCurrentAction("Swipe down");
 			int scrollStart = screenHeightStart.intValue();
 			int scrollEnd = screenHeightEnd.intValue();
 			System.out.println("driver.swipe scrollStartY="+scrollStart+", scrollEndY="+scrollEnd);
@@ -68,7 +73,7 @@ public class AndroidSampleTestCase {
 
 		if (result) {
 			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//android.support.v7.widget.RecyclerView[1]/android.widget.RelativeLayout[6]")));
-			//mGeoTestingClient.setCurrentAction("Strawberries Wild");
+			mGeoTestingClient.setCurrentAction("Strawberries Wild");
 			result = clickByXPath(
 					"//android.support.v7.widget.RecyclerView[1]/android.widget.RelativeLayout[6]",
 					"Strawberries Wild");
@@ -76,32 +81,32 @@ public class AndroidSampleTestCase {
 		
 		if (result) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("tv_add_to_basket")));
-			//mGeoTestingClient.setCurrentAction("Select Store");
+			mGeoTestingClient.setCurrentAction("Select Store");
 			result = clickById("tv_add_to_basket", "Select Store");
 		}
 
 		if (result) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//android.widget.Button[2]")));
-			//mGeoTestingClient.setCurrentAction("Preferred Store");
+			mGeoTestingClient.setCurrentAction("Preferred Store");
 			result = clickByXPath("//android.widget.Button[2]", "Preferred Store");
 		}
 
 		if (result) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("tv_add_to_basket")));
-			//mGeoTestingClient.setCurrentAction("Add to Basket");
+			mGeoTestingClient.setCurrentAction("Add to Basket");
 			result = clickById("tv_add_to_basket", "Add to Basket");
 		}
 
 		if (result) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("continueBtn")));
-			//mGeoTestingClient.setCurrentAction("Close Button");
+			mGeoTestingClient.setCurrentAction("Close Button");
 			driver.pressKeyCode(4); // Back key
 			//result = clickByXPath("menuBtn", "Close Button");
 		}
 
 		if (result) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("settingsBtn")));
-			//mGeoTestingClient.setCurrentAction("Profile & Settings");
+			mGeoTestingClient.setCurrentAction("Profile & Settings");
 			result = clickById("settingsBtn", "Profile & Settings");
 		}
 
@@ -113,17 +118,18 @@ public class AndroidSampleTestCase {
 			
 			//dumpElement(By.className("android.widget.Button"));
 			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//android.widget.Button[contains(@text, 'Log Out')]")));
-			//mGeoTestingClient.setCurrentAction("Logout");
+			mGeoTestingClient.setCurrentAction("Logout");
 			result = clickByXPath("//android.widget.Button[contains(@text, 'Log Out')]", "Logout");
 		}
 		
 		if (result) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//android.widget.Button[contains(@text, 'Log Out')]")));
-			//mGeoTestingClient.setCurrentAction("Log out");
+			mGeoTestingClient.setCurrentAction("Log out");
 			result = clickByXPath("//android.widget.Button[contains(@text, 'Log Out')]", "Log out");
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void dumpElement(By element) {
 		int index = 0;
 		while (driver.findElements(element).size() < 1 && index < 20) {
@@ -144,6 +150,7 @@ public class AndroidSampleTestCase {
 		return click(By.id(id), screenName);
 	}
 
+	@SuppressWarnings("unused")
 	private boolean clickByName(String name, String screenName) {
 		return click(By.name(name), screenName);
 	}
@@ -153,6 +160,7 @@ public class AndroidSampleTestCase {
 		return click(By.xpath(xpath), screenName);
 	}
 
+	@SuppressWarnings("unused")
 	private boolean textByXPath(String xpath, String text, String screenName)
 			throws InterruptedException {
 		return text(By.xpath(xpath), text, screenName);

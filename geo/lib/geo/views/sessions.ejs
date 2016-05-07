@@ -1,0 +1,160 @@
+<script>
+    
+    function activateSession(sid) {
+       $.ajax({
+            type: "POST",
+            url: '/geo/session/activate',
+            dateType: 'json',
+            data: {sid: sid},
+            success: function (data, textStatus, jqXHR) {
+               location.reload();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(errorThrown);
+            },
+            complete: function () {
+                
+            }
+        });
+        return false;
+    }
+    
+    function deleteSession(sid) {
+        $.ajax({
+            type: "DELETE",
+            url: '/geo/session',
+            dateType: 'json',
+            data: {sid: sid},
+            success: function (data, textStatus, jqXHR) {
+               location.reload();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(errorThrown);
+            },
+            complete: function () {
+                
+            }
+        });
+        return false;
+    }
+    
+    function createSession() {
+        var txt = $('#session-name');
+        var val = txt.val();
+        if (val && val != "") {
+            doApiCall('/geo/session', {name: val, appName: $('#session-app').val()});
+        }
+        return false;
+    }
+
+    function doApiCall(path, _data) {
+        var res = $('#dvDemoResults');
+        $.ajax({
+            type: "POST",
+            url: path,
+            dateType: 'json',
+            data: _data,
+            success: function (data, textStatus, jqXHR) {
+                res.html(JSON.stringify(data, null, 4));
+                window.location='/geo/actions?sid='+data;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                res.html(textStatus + ":" + errorThrown);
+            },
+            complete: function () {
+                res.show()
+            }
+        });
+    }
+</script>
+<div class="row">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Geo Testing Tool</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/docs">API Documentation</a></li>
+                    <li><a href="#link">About   </a></li>
+                </ul>
+                <!-- form class="navbar-form navbar-right">
+                    <input type="text" class="form-control" placeholder="Search...">
+                </form -->
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 main">
+                <h1 class="page-header">Sessions</h1>
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">New Session</button>
+                <!-- Modal -->
+                <div class="modal fade" id="myModal" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">New Session</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="session-name" class="control-label">Name:</label>
+                                        <input type="text" class="form-control" id="session-name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="session-app" class="control-label">App:</label>
+                                        <input type="text" id="session-app" class="form-control" value="Jamba Juice"  disabled/>
+                                    </div>
+                                </form>
+                                <pre id="dvDemoResults" style="display: none; padding:4px; margin:2px;"></pre>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" onclick="return createSession();">Start</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>App</th>
+                                <th>Created At</th>
+                                <th>...</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% sessions.forEach(function(session) { %>
+                            <tr>
+                                <td><a href="/geo/actions?sid=<%=session._id%>"><%=session.name%></a> <% if(session.active) {%><span class="label  label-danger">Active</span> <% } %></td>
+                                <td><%= session.appName %></td>
+                                <td><%= session.createdAt %></td>
+                                <td>
+                                    <% if(!session.active) {%><button onclick="return activateSession('<%=session._id%>')">Activate</button><% } %>
+                                    <button onclick="return deleteSession('<%=session._id%>')">Delete</button>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>

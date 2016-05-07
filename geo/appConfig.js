@@ -1,6 +1,7 @@
 require('app-module-path').addPath(__dirname + '/lib');
 var bodyParser = require('body-parser');
-var exphbs  = require('express-handlebars');
+//var exphbs  = require('express-handlebars');
+expejs=require("express-ejs-layouts")
 
 exports.setup = function(runningApp, callback) {
     // Nothing ever comes from "x-powered-by", but a security hole
@@ -12,15 +13,17 @@ exports.setup = function(runningApp, callback) {
                                          }));
     runningApp.use(bodyParser.json());
 
-    //
+    /*
     var hbs = exphbs.create({
         defaultLayout: __dirname + '/views/layouts/main.handlebars',
 	layoutsDir: __dirname + '/views/layouts',
         helpers: require("./public/js/helpers.js").helpers
     });
 
-    runningApp.engine('handlebars', hbs.engine);
-    runningApp.set('view engine', 'handlebars');
+    runningApp.engine('handlebars', hbs.engine);*/
+    runningApp.use(expejs)
+    runningApp.set('view engine', 'ejs');
+    runningApp.set('layout', __dirname + '/views/layouts/main.ejs');
 
     runningApp.use('/geo', require('geo')); // attach to sub-route
 

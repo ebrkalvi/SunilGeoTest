@@ -2,6 +2,10 @@ package com.ebricks.tests;
 
 import io.appium.java_client.android.AndroidDriver;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
@@ -13,18 +17,37 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import com.ebricks.geo.GeoTestingClient;
 import com.ebricks.testcase.AndroidSampleTestCase;
 
 public class AndroidTestCaseRunner {
     
     static final String APP_PATH = "/resources/JambaJuice.apk";
     
+    GeoTestingClient geoTestingClient;
     AndroidDriver<WebElement> driver;
+    String currentSID;
+    
+    static String findPublicIP() {
+        try {
+            URL connection = new URL("http://checkip.amazonaws.com/");
+            HttpURLConnection con = (HttpURLConnection)connection.openConnection();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            return reader.readLine();
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
     
     @Before
     public void setUp() {
-        System.out.println("Working Directory = " +
-                      System.getProperty("user.dir"));
+    	geoTestingClient = new GeoTestingClient();
+        currentSID = geoTestingClient.createSession("Appium Android Testcases", "com.olo.jambajuice", findPublicIP());
+        geoTestingClient.activateSession(currentSID);
+
+        geoTestingClient.setCurrentAction("Starting Up..");
+        
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("device", "Android");
         capabilities.setCapability(CapabilityType.BROWSER_NAME, ""); // Should be an empty string if testing an app.
@@ -41,12 +64,8 @@ public class AndroidTestCaseRunner {
         capabilities.setJavascriptEnabled(true);
         
         try {
-            
-            //driver = new RemoteWebDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
-            
             driver = new AndroidDriver<WebElement>(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
             driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
-            
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -56,7 +75,7 @@ public class AndroidTestCaseRunner {
     @Test
     public void run() {
         if(driver != null) {
-            AndroidSampleTestCase testCase = new AndroidSampleTestCase();
+            AndroidSampleTestCase testCase = new AndroidSampleTestCase(geoTestingClient);
             try {
                 testCase.runIt(driver);
             } catch (InterruptedException e) {
@@ -74,5 +93,6 @@ public class AndroidTestCaseRunner {
         if(driver != null) {
             driver.quit();
         }
+        geoTestingClient.deactivateSession(currentSID);
     }
 }

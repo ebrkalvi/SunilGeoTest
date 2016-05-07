@@ -40,6 +40,27 @@ var populateDB = function () {
 
 };
 
+function insertEvent(geo, res) {
+    geo.sid = new BSON.ObjectID(activeSession)
+    geo.action = currentAction
+    geo.type = geo.type ? geo.type : 'Network'
+    console.log('Adding geo: ' + JSON.stringify(geo));
+    db.collection('actions', function (err, collection) {
+        collection.insert(geo, {
+            safe: true
+        }, function (err, result) {
+            if (err) {
+                res.send({
+                    'error': 'An error has occurred'
+                });
+            } else {
+                console.log('Success: ' + JSON.stringify(result[0]));
+                res.send(result[0]);
+            }
+        });
+    });
+}
+
 db.open(function (err, db) {
     if (!err) {
         console.log("Connected to 'geodb' database");
@@ -86,7 +107,10 @@ exports.findById = function (req, res) {
 exports.setCurrentAction = function (req, res) {
     currentAction = req.body.action
     console.log('setCurrentAction: ' + currentAction);
-    res.send(currentAction);
+    insertEvent({
+            type: 'User'
+        }, res)
+        //res.send(currentAction);
 };
 
 exports.activateSession = function (req, res) {
@@ -96,13 +120,15 @@ exports.activateSession = function (req, res) {
 };
 
 exports.deactivateSession = function (req, res) {
-    if(req.body.sid == activeSession) {
+    if (req.body.sid == activeSession) {
         activeSession = undefined
         currentAction = undefined
         console.log('De-Activated Session: ' + req.body.sid);
         res.send(req.body.sid);
     } else
-        res.send("");
+        res.send({
+            error: 'An error has occurred'
+        });
 };
 
 exports.addSession = function (req, res) {
@@ -111,7 +137,8 @@ exports.addSession = function (req, res) {
     var doc = {
         createdAt: new Date(),
         name: session.name,
-        appName: session.appName
+        appName: session.appName,
+        deviceIp: session.deviceIp
     }
     db.collection('sessions', function (err, collection) {
         collection.insert(doc, {
@@ -130,6 +157,38 @@ exports.addSession = function (req, res) {
     });
 };
 
+exports.getSessions = function (req, res) {
+    db.collection('sessions', function (err, collection) {
+        collection.find().limit(50).sort({
+            'createdAt': -1
+        }).toArray(function (err, items) {
+            console.log("count=", items.length, activeSession)
+            if (err)
+                res.send({
+                    error: 'An error has occurred'
+                });
+            else
+                res.send(items)
+        });
+    });
+};
+
+exports.getSession = function (req, res) {
+    db.collection('sessions', function (err, collection) {
+        collection.find({
+            _id: new BSON.ObjectID(req.params.id)
+        }).toArray(function (err, items) {
+            console.log("count=", items.length, activeSession)
+            if (err)
+                res.send({
+                    error: 'An error has occurred'
+                });
+            else
+                res.send(items)
+        });
+    });
+};
+
 exports.sessions = function (req, res) {
     db.collection('sessions', function (err, collection) {
         collection.find().limit(50).sort({
@@ -141,7 +200,7 @@ exports.sessions = function (req, res) {
                     items[i].active = true
             var template = __dirname + '/../views/sessions';
             res.render(template, {
-                welcomeMessage: "Welcome!",
+                siteTitle: "Geo Testing",
                 sessions: items,
                 activeSession: activeSession
             })
@@ -205,6 +264,7 @@ exports.actions = function (req, res) {
             }).toArray(function (err, items) {
                 var template = __dirname + '/../views/actions';
                 res.render(template, {
+                    siteTitle: "Geo Testing - " + session.name,
                     session: session,
                     excludes: excludes,
                     actions: items
@@ -221,24 +281,7 @@ exports.addGeo = function (req, res) {
         res.send({
             'error': 'No active session!'
         });
-    var geo = req.body;
-    geo.sid = new BSON.ObjectID(activeSession)
-    geo.action = currentAction
-    console.log('Adding geo: ' + JSON.stringify(geo));
-    db.collection('actions', function (err, collection) {
-        collection.insert(geo, {
-            safe: true
-        }, function (err, result) {
-            if (err) {
-                res.send({
-                    'error': 'An error has occurred'
-                });
-            } else {
-                console.log('Success: ' + JSON.stringify(result[0]));
-                res.send(result[0]);
-            }
-        });
-    });
+    insertEvent(req.body, res);
 }
 
 exports.updateGeo = function (req, res) {

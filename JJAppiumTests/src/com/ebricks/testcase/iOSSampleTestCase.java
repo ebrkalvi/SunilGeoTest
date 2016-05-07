@@ -3,7 +3,6 @@ package com.ebricks.testcase;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
 
 import org.openqa.selenium.By;
@@ -152,6 +151,7 @@ public class iOSSampleTestCase {
 		
 	}
 
+	@SuppressWarnings("unused")
 	private boolean clickByName(String name, String screenName)
 			throws InterruptedException {
 		return click(By.name(name), screenName);
@@ -167,6 +167,7 @@ public class iOSSampleTestCase {
 		return text(By.xpath(xpath), text, screenName);
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isElementPresentByXPath(String xpath, String screenName)
 			throws InterruptedException {
 		return getElement(By.xpath(xpath), screenName) == null ? false : true;

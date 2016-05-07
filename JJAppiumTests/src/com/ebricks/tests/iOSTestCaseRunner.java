@@ -25,10 +25,8 @@ import com.ebricks.testcase.iOSSampleTestCase;
 import com.ebricks.geo.GeoTestingClient;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class iOSTestCaseRunner {
     
@@ -42,7 +40,6 @@ public class iOSTestCaseRunner {
         try {
             URL connection = new URL("http://checkip.amazonaws.com/");
             HttpURLConnection con = (HttpURLConnection)connection.openConnection();
-            String str = null;
             BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
             return reader.readLine();
         } catch(IOException ex) {
@@ -50,7 +47,6 @@ public class iOSTestCaseRunner {
         }
         return null;
     }
-    
     
     @Before
     public void setUp() {
@@ -77,9 +73,6 @@ public class iOSTestCaseRunner {
             driver = new IOSDriver<WebElement>(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
             driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
         } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -109,7 +102,8 @@ public class iOSTestCaseRunner {
         geoTestingClient.deactivateSession(currentSID);
     }
     
-    private File analyseFile(File app) throws IOException {
+    @SuppressWarnings("unused")
+	private File analyseFile(File app) throws IOException {
         String file = app.getName();
         String name = file.substring(0, file.lastIndexOf("."));
         String ext = file.substring(file.lastIndexOf('.'));
@@ -125,10 +119,9 @@ public class iOSTestCaseRunner {
     }
     
     private void unzipIPA(File appFile) throws IOException {
-        
         ZipFile zipFile = new ZipFile(appFile.getAbsolutePath());
         // String path = "";
-        Enumeration files = zipFile.entries();
+        Enumeration<?> files = zipFile.entries();
         
         while (files.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) files.nextElement();
@@ -151,6 +144,6 @@ public class iOSTestCaseRunner {
                 System.out.println("Create File " + entry.getName());
             }
         }
-        
+        zipFile.close();
     }
 }
