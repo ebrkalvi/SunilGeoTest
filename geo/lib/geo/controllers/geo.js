@@ -92,6 +92,79 @@ db.open(function (err, db) {
         console.log("Error connecting to 'geodb' database", err);
 });
 
+exports.addApp = function (req, res) {
+    var app = req.body;
+    console.log('Adding App: ', req.files);
+    var date_now = new Date()
+    var serverPath = 'uploads/apps/' + date_now.getTime() + req.files.file.name;
+
+    require('fs').rename(
+        req.files.file.path,
+        serverPath,
+        function (err) {
+            if (err) {
+                console.log(err)
+                res.send({
+                    error: 'Error uploading app'
+                });
+                return;
+            }
+            console.log('Upload Success: ' + serverPath);
+            var doc = {
+                createdAt: date_now,
+                path: serverPath,
+                status: 'CREATED'
+            }
+            db.collection('apps').insert(doc, {}, function (err, result) {
+                if (err) {
+                    console.log(err)
+                    res.send({
+                        error: 'An error has occurred', 
+                    });
+                } else {
+                    console.log('Success: ' + JSON.stringify(result));
+                    var r = result.ops[0]._id + ""
+                    res.send(r);
+                }
+            });
+        }
+    );
+
+};
+
+exports.getApps = function (req, res) {
+    db.collection('apps', function (err, collection) {
+        collection.find().limit(50).sort({
+            'createdAt': -1
+        }).toArray(function (err, items) {
+            console.log("count=", items.length, activeSession)
+            if (err)
+                res.send({
+                    error: 'An error has occurred'
+                });
+            else
+                res.send(items)
+        });
+    });
+};
+
+exports.getApp = function (req, res) {
+    db.collection('apps', function (err, collection) {
+        collection.find({
+            _id: new BSON.ObjectID(req.params.id)
+        }).toArray(function (err, items) {
+            console.log("count=", items.length, activeSession)
+            if (err)
+                res.send({
+                    error: 'An error has occurred'
+                });
+            else
+                res.send(items)
+        });
+    });
+};
+
+
 exports.findById = function (req, res) {
     var id = req.params.id;
     console.log('Retrieving geo: ' + id);

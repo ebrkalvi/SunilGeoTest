@@ -10,6 +10,66 @@ router.models = require('./models');
 router.get('/', router.callbacks.sessions);
 
 /**
+ * @api {get} /app GetApps
+ * @apiName GetApps
+ * @apiGroup Apps
+ *  
+ * @apiDescription  Request all apps for the authenticated user
+ *
+ * @apiSuccess {Object[]} array of app objects
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *      {"createdAt":"2016-05-06T12:13:29.283Z","name":"eB-Test1","appName":"Jamba Juice","_id":"572c8a690ef6dd9e4aaa4642"},
+ *      {"createdAt":"2016-04-19T17:00:10.754Z","name":"Appium Android Testcases","appName":"com.olo.jambajuice","_id":"5716641a52509d222dae0442"}
+ *     ]
+ */
+router.get('/app', router.callbacks.getApps);
+
+/**
+ * @api {get} /app/:id GetApp
+ * @apiName GetApp
+ * @apiGroup Apps
+ * @apiParam {String} id App unique ID.
+ *  
+ * @apiDescription  Request a app with specified id for the authenticated user
+ *
+ * @apiSuccess {Object} App object
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *         "createdAt":"2016-05-06T12:13:29.283Z","name":"eB-Test1","appName":"Jamba Juice","_id":"572c8a690ef6dd9e4aaa4642"
+ *     }
+ *
+ * @apiError The <code>id</code> of the App was not found.
+ */
+router.get('/app/:id', router.callbacks.getApp);
+
+/**
+ * @api {post} /app AddApp
+ * @apiName AddApp
+ * @apiGroup Apps
+ * @apiParam {String} name Name of the Session.
+ * @apiParam {String} appName Name of the App.
+ * @apiParam {String} os OS where the App would be run/test.
+ *  
+ * @apiDescription Create a new App
+ *
+ * @apiSuccess {String} _id unique id of the app
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     "572c8a690ef6dd9e4aaa4642"
+ *
+ * @apiError The <code>error</code>field will have more diagnostic info/message.
+ */
+router.post('/app', router.callbacks.addApp);
+
+
+
+/**
  * @apiDefine SessionNotFoundError
  *
  * @apiError SessionNotFound The id of the Session was not found.

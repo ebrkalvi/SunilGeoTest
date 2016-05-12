@@ -1,50 +1,98 @@
 <script>
-    
     function activateSession(sid) {
-       $.ajax({
+        $.ajax({
             type: "POST",
             url: '/geo/session/activate',
             dateType: 'json',
-            data: {sid: sid},
+            data: {
+                sid: sid
+            },
             success: function (data, textStatus, jqXHR) {
-               location.reload();
+                location.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert(errorThrown);
             },
             complete: function () {
-                
+
             }
         });
         return false;
     }
-    
+
     function deleteSession(sid) {
         $.ajax({
             type: "DELETE",
             url: '/geo/session',
             dateType: 'json',
-            data: {sid: sid},
+            data: {
+                sid: sid
+            },
             success: function (data, textStatus, jqXHR) {
-               location.reload();
+                location.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert(errorThrown);
             },
             complete: function () {
-                
+
             }
         });
         return false;
     }
-    
+
     function createSession() {
         var txt = $('#session-name');
         var val = txt.val();
         if (val && val != "") {
-            doApiCall('/geo/session', {name: val, appName: $('#session-app').val()});
+            doApiCall('/geo/session', {
+                name: val,
+                appName: $('#session-app').val()
+            });
         }
         return false;
+    }
+
+    function createApp() {
+        var formData = new FormData();
+        console.log($('#uploadFile')[0].files[0])
+        formData.append('file', $('#uploadFile')[0].files[0]);
+
+        $("#files").append(
+            $('<div class="list-group-item">\
+                    <div class="progress progress-striped active">\
+                        <div class="progress-bar progress-bar-info" style="width: 0%;"></div>\
+                    </div>\
+                </div>'));
+        $("#fileUploadError").addClass("hide");
+
+        $.ajax({
+            url: '/geo/app',
+            type: 'POST',
+            xhr: function () {
+                var xhr = $.ajaxSettings.xhr();
+                if (xhr.upload) {
+                    xhr.upload.addEventListener('progress', function (evt) {
+                        var percent = (evt.loaded / evt.total) * 100;
+                        $("#files").find(".progress-bar").width(percent + "%");
+                    }, false);
+                }
+                return xhr;
+            },
+            success: function (data) {
+                $("#files").children().last().remove();
+                $("#uploadFile").closest("form").trigger("reset");
+            },
+            error: function () {
+                $("#fileUploadError").removeClass("hide").text("An error occured!");
+                $("#files").children().last().remove();
+                $("#uploadFile").closest("form").trigger("reset");
+            },
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        }, 'json');
     }
 
     function doApiCall(path, _data) {
@@ -56,7 +104,7 @@
             data: _data,
             success: function (data, textStatus, jqXHR) {
                 res.html(JSON.stringify(data, null, 4));
-                window.location='/geo/actions?sid='+data;
+                window.location = '/geo/actions?sid=' + data;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 res.html(textStatus + ":" + errorThrown);
@@ -114,7 +162,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="session-app" class="control-label">App:</label>
-                                        <input type="text" id="session-app" class="form-control" value="Jamba Juice"  disabled/>
+                                        <input type="text" id="session-app" class="form-control" value="Jamba Juice" disabled/>
                                     </div>
                                 </form>
                                 <pre id="dvDemoResults" style="display: none; padding:4px; margin:2px;"></pre>
@@ -122,6 +170,34 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                                 <button type="button" class="btn btn-primary" onclick="return createSession();">Start</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myApp">New App</button>
+                <!-- Modal -->
+                <div class="modal fade" id="myApp" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">New App</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="uploadFile" class="control-label">Choose apk or ipa file:</label>
+                                        <input type="file" accept=".apk, .ipa" id="uploadFile" />
+                                    </div>
+                                </form>
+                                <p id="fileUploadError" class="text-danger hide"></p>
+                                <div class="list-group" id="files"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" onclick="return createApp();">Start</button>
                             </div>
                         </div>
 
@@ -139,16 +215,28 @@
                         </thead>
                         <tbody>
                             <% sessions.forEach(function(session) { %>
-                            <tr>
-                                <td><a href="/geo/actions?sid=<%=session._id%>"><%=session.name%></a> <% if(session.active) {%><span class="label  label-danger">Active</span> <% } %></td>
-                                <td><%= session.appName %></td>
-                                <td><%= session.createdAt %></td>
-                                <td>
-                                    <% if(!session.active) {%><button onclick="return activateSession('<%=session._id%>')">Activate</button><% } %>
-                                    <button onclick="return deleteSession('<%=session._id%>')">Delete</button>
-                                </td>
-                            </tr>
-                            <% }) %>
+                                <tr>
+                                    <td>
+                                        <a href="/geo/actions?sid=<%=session._id%>">
+                                            <%=session.name%>
+                                        </a>
+                                        <% if(session.active) {%><span class="label  label-danger">Active</span>
+                                            <% } %>
+                                    </td>
+                                    <td>
+                                        <%= session.appName %>
+                                    </td>
+                                    <td>
+                                        <%= session.createdAt %>
+                                    </td>
+                                    <td>
+                                        <% if(!session.active) {%>
+                                            <button onclick="return activateSession('<%=session._id%>')">Activate</button>
+                                            <% } %>
+                                                <button onclick="return deleteSession('<%=session._id%>')">Delete</button>
+                                    </td>
+                                </tr>
+                                <% }) %>
                         </tbody>
                     </table>
                 </div>
