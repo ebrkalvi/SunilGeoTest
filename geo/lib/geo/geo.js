@@ -51,9 +51,7 @@ router.get('/app/:id', router.callbacks.getApp);
  * @api {post} /app AddApp
  * @apiName AddApp
  * @apiGroup Apps
- * @apiParam {String} name Name of the Session.
- * @apiParam {String} appName Name of the App.
- * @apiParam {String} os OS where the App would be run/test.
+ * @apiParam {File} file apk or ipa.
  *  
  * @apiDescription Create a new App
  *
