@@ -28,7 +28,9 @@
     "mongodb": "*",
     "express-handlebars": "*",
     "express-ejs-layouts": "^0.1.0",
-    "ejs": "*"
+    "ejs": "*",
+    "ipa-metadata": "*",
+    "apk-parser": "*"
   },
   "devDependencies": {
     "after": "^0.8.1",

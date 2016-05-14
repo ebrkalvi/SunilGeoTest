@@ -1,6 +1,8 @@
 var exports = module.exports;
 var mongo = require('mongodb');
 var bson = require("bson");
+var ipaMetadata = require('ipa-metadata');
+var parseApk = require('apk-parser');
 
 var Server = mongo.Server,
     Db = mongo.Db;
@@ -92,6 +94,45 @@ db.open(function (err, db) {
         console.log("Error connecting to 'geodb' database", err);
 });
 
+function parseIPA(path, app_id) {
+    ipaMetadata(path, function (error, data) {
+        var app_info = {
+            status: 'PARSED',
+            platform: 'iOS',
+            name: data['metadata']['CFBundleName'],
+            package: data['metadata']['CFBundleIdentifier']
+        }
+        console.log(app_info. name, app_info.package);
+        db.collection('apps').update({'_id': new BSON.ObjectID(app_id)}, {$set: app_info}, function (err, result) {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log('parseIPA Success: ' + JSON.stringify(result));
+            }
+        });
+    });
+}
+
+function parseAPK(path, app_id) {
+    parseApk(path, function (error, data) {
+        console.log('parseAPK', data['manifest'][0]['application']);
+        var app_info = {
+            status: 'PARSED',
+            platform: 'Android',
+            name: data['manifest'][0]['application'][0]['@android:name'],
+            package: data['manifest'][0]['@package']
+        }
+        console.log(app_info. name, app_info.package);
+        db.collection('apps').update({'_id': new BSON.ObjectID(app_id)}, {$set: app_info}, function (err, result) {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log('parseAPK Success: ' + JSON.stringify(result));
+            }
+        });
+    });
+}
+
 exports.addApp = function (req, res) {
     var app = req.body;
     console.log('Adding App: ', req.files);
@@ -119,12 +160,17 @@ exports.addApp = function (req, res) {
                 if (err) {
                     console.log(err)
                     res.send({
-                        error: 'An error has occurred', 
+                        error: 'An error has occurred',
                     });
                 } else {
                     console.log('Success: ' + JSON.stringify(result));
                     var r = result.ops[0]._id + ""
                     res.send(r);
+                    var ext = serverPath.slice(-4)
+                    if(ext == '.ipa')
+                        parseIPA(serverPath, r)
+                    else if(ext == '.apk')
+                        parseAPK(serverPath, r)
                 }
             });
         }
@@ -263,22 +309,22 @@ exports.getSession = function (req, res) {
 };
 
 exports.sessions = function (req, res) {
-    db.collection('sessions', function (err, collection) {
-        collection.find().limit(50).sort({
-            'createdAt': -1
-        }).toArray(function (err, items) {
-            console.log("count=", items.length, activeSession)
-            for (var i = 0; i < items.length; ++i)
-                if (items[i]._id == activeSession)
-                    items[i].active = true
-            var template = __dirname + '/../views/sessions';
-            res.render(template, {
-                siteTitle: "Geo Testing",
-                sessions: items,
-                activeSession: activeSession
-            })
-        });
+    console.log("-> sessions");
+    db.collection('sessions').find().limit(50).sort({
+        'createdAt': -1
+    }).toArray(function (err, items) {
+        console.log("count=", items.length, activeSession)
+        for (var i = 0; i < items.length; ++i)
+            if (items[i]._id == activeSession)
+                items[i].active = true
+        var template = __dirname + '/../views/sessions';
+        res.render(template, {
+            siteTitle: "Geo Testing",
+            sessions: items,
+            activeSession: activeSession
+        })
     });
+
 };
 
 exports.deleteSession = function (req, res) {
