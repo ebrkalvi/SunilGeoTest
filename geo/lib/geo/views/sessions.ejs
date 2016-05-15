@@ -114,6 +114,29 @@
             }
         });
     }
+    $(function () {
+        $('#myModal').on('hide.bs.modal', function () {
+            console.log('hide');
+        }).on('show.bs.modal', function () {
+            var app_list = $("#session-app");
+            app_list.empty().attr('disabled', 'disabled').append(new Option("Please wait..", "-1"));
+            $.ajax({
+                type: "GET",
+                url: '/geo/app',
+                dateType: 'json',
+                data: {},
+                success: function (data, textStatus, jqXHR) {
+                    app_list.empty().removeAttr('disabled')
+                    $.each(data, function (index, item) {
+                        app_list.append(new Option(item.name+' | '+item.platform+' | '+item.package, item._id));
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus+" - "+errorThrown);
+                }
+            });
+        });
+    });
 </script>
 <div class="row">
     <nav class="navbar navbar-inverse">
@@ -145,7 +168,7 @@
     </ul>
     <div class="container-fluid">
         <br />
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">New Session</button>
+        <button type="button" class="btn btn-info" onclick="$('#myModal').modal('show');" data-target="#myModal">New Session</button>
 
         <!-- Modal -->
         <div class="modal fade" id="myModal" role="dialog">
@@ -165,7 +188,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="session-app" class="control-label">App:</label>
-                                <input type="text" id="session-app" class="form-control" value="Jamba Juice" disabled/>
+                                <select id="session-app" class="form-control"></select>
                             </div>
                         </form>
                         <pre id="dvDemoResults" style="display: none; padding:4px; margin:2px;"></pre>

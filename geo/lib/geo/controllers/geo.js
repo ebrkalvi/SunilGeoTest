@@ -179,8 +179,9 @@ exports.addApp = function (req, res) {
 };
 
 exports.getApps = function (req, res) {
+    var sel = {path:0, createdAt:0, status: 0}
     db.collection('apps', function (err, collection) {
-        collection.find().limit(50).sort({
+        collection.find({}, sel).limit(50).sort({
             'createdAt': -1
         }).toArray(function (err, items) {
             console.log("count=", items.length, activeSession)
