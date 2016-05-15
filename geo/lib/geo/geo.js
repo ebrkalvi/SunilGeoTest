@@ -8,6 +8,7 @@ router.models = require('./models');
 
 
 router.get('/', router.callbacks.sessions);
+router.get('/apps', router.callbacks.apps);
 
 /**
  * @api {get} /app GetApps

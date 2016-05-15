@@ -199,7 +199,7 @@ exports.getApp = function (req, res) {
         collection.find({
             _id: new BSON.ObjectID(req.params.id)
         }).toArray(function (err, items) {
-            console.log("count=", items.length, activeSession)
+            console.log("count=", items.length)
             if (err)
                 res.send({
                     error: 'An error has occurred'
@@ -210,6 +210,19 @@ exports.getApp = function (req, res) {
     });
 };
 
+exports.apps = function (req, res) {
+    console.log("-> apps");
+    db.collection('apps').find().limit(50).sort({
+        'createdAt': -1
+    }).toArray(function (err, items) {
+        console.log("Apps count=", items.length)
+        var template = __dirname + '/../views/apps';
+        res.render(template, {
+            siteTitle: "Geo Testing",
+            apps: items
+        })
+    });
+};
 
 exports.findById = function (req, res) {
     var id = req.params.id;
@@ -324,7 +337,6 @@ exports.sessions = function (req, res) {
             activeSession: activeSession
         })
     });
-
 };
 
 exports.deleteSession = function (req, res) {
