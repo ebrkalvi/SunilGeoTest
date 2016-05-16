@@ -240,12 +240,10 @@ exports.apps = function (req, res) {
 exports.findById = function (req, res) {
     var id = req.params.id;
     console.log('Retrieving geo: ' + id);
-    db.collection('actions', function (err, collection) {
-        collection.findOne({
-            '_id': new BSON.ObjectID(id)
-        }, function (err, item) {
-            res.send(item);
-        });
+    db.collection('actions').findOne({
+        '_id': new BSON.ObjectID(id)
+    }, function (err, item) {
+        res.send(item);
     });
 };
 
@@ -283,6 +281,7 @@ exports.addSession = function (req, res) {
         createdAt: new Date(),
         name: session.name,
         appName: session.appName,
+        appID: new BSON.ObjectID(session.appID),
         deviceIp: session.deviceIp
     }
     db.collection('sessions', function (err, collection) {

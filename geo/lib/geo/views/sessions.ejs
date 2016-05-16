@@ -42,12 +42,12 @@
     }
 
     function createSession() {
-        var txt = $('#session-name');
-        var val = txt.val();
-        if (val && val != "") {
+        var name = $('#session-name').val();
+        if (name && name != "") {
             doApiCall('/geo/session', {
-                name: val,
-                appName: $('#session-app').val()
+                name: name,
+                appName: $('#session-app').text(),
+                appID: $('#session-app').val()
             });
         }
         return false;
@@ -104,7 +104,7 @@
             data: _data,
             success: function (data, textStatus, jqXHR) {
                 res.html(JSON.stringify(data, null, 4));
-                window.location = '/geo/actions?sid=' + data;
+                window.location = '/geo/actions?out=html&sid=' + data;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 res.html(textStatus + ":" + errorThrown);

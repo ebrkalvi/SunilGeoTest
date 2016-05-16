@@ -92,8 +92,8 @@ router.post('/app', router.callbacks.addApp);
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [
- *      {"createdAt":"2016-05-06T12:13:29.283Z","name":"eB-Test1","appName":"Jamba Juice","_id":"572c8a690ef6dd9e4aaa4642"},
- *      {"createdAt":"2016-04-19T17:00:10.754Z","name":"Appium Android Testcases","appName":"com.olo.jambajuice","_id":"5716641a52509d222dae0442"}
+ *      {"createdAt":"2016-05-06T12:13:29.283Z", "name":"eB-Test1", "appName":"Jamba Juice", "appID":"572c8a690ef6baba4aaa4642", "_id":"572c8a690ef6dd9e4aaa4642"},
+ *      {"createdAt":"2016-04-19T17:00:10.754Z", "name":"Appium Android Testcases", "appName":"com.olo.jambajuice", "appID":"572c8a690ef6caca4aaa4642", "_id":"5716641a52509d222dae0442"}
  *     ]
  */
 router.get('/session', router.callbacks.getSessions);
@@ -111,7 +111,11 @@ router.get('/session', router.callbacks.getSessions);
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *         "createdAt":"2016-05-06T12:13:29.283Z","name":"eB-Test1","appName":"Jamba Juice","_id":"572c8a690ef6dd9e4aaa4642"
+ *          "createdAt":"2016-05-06T12:13:29.283Z",
+            "name":"eB-Test1", 
+            "appName":"Jamba Juice", 
+            "appID":"572c8a690ef6baba4aaa4642", 
+            "_id":"572c8a690ef6dd9e4aaa4642"
  *     }
  *
  * @apiError The <code>id</code> of the Session was not found.
