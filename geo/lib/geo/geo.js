@@ -128,7 +128,7 @@ router.get('/session/:id', router.callbacks.getSession);
  * @apiGroup Sessions
  * @apiParam {String} name Name of the Session.
  * @apiParam {String} appName Name of the App.
- * @apiParam {String} os OS where the App would be run/test.
+ * @apiParam {String} appID unique id of the App to be tested.
  *  
  * @apiDescription Create a new Session
  *
