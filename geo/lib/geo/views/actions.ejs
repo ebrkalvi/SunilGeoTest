@@ -1,8 +1,4 @@
 <%
-var timeDiff = function(operand1, operand2) {
-    return Math.round((operand1 - operand2)*10000)/10;
-}
-
 var formatTS = function(ts) {
     var format = new Date(ts*1000);
     return format.toISOString();
@@ -12,13 +8,6 @@ var trimString = function(passedString, startstring, endstring) {
    var theString = passedString.substring(0, 80);
    return theString
 };
-
-var formatBytes = function(bytes) {
-   if(bytes == 0) return '0 bytes';
-   var sizes = [' bytes', ' KB', ' MB', ' GB'];
-   var i = Math.floor(Math.log(bytes) / Math.log(1024));
-   return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + sizes[i];
-}
 %>
 <div class="row">
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -75,14 +64,14 @@ var formatBytes = function(bytes) {
                         <tbody>
                             <%actions.forEach(function(action){%>
                             <tr>
-                                <td><%=formatTS(action.request.timestamp_start)%></td>
+                                <td><%=formatTS(action.requested_at)%></td>
                                 <td><%=action.action%></td>
-                                <td><b><%=action.request.host%></b><%=trimString(action.request.path)%></td>
-                                <td><%=timeDiff(action.request.timestamp_end, action.request.timestamp_start)%></td>
-                                <td><%=timeDiff(action.response.timestamp_start, action.request.timestamp_end)%></td>
-                                <td><%=timeDiff(action.response.timestamp_end, action.response.timestamp_start)%></td>
-                                <td><%=timeDiff(action.response.timestamp_end, action.request.timestamp_start)%></td>
-                                <td><%=formatBytes(action.response.contentLength)%></td>
+                                <td><%=trimString(action.url)%></td>
+                                <td><%=action.request_time%></td>
+                                <td><%=action.execution_time%></td>
+                                <td><%=action.response_time%></td>
+                                <td><%=action.total_time%></td>
+                                <td><%=action.response_size%></td>
                             </tr>
                             <%});%>
                         </tbody>

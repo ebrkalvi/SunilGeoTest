@@ -217,7 +217,7 @@
                             <% sessions.forEach(function(session) { %>
                                 <tr>
                                     <td>
-                                        <a href="/geo/actions?sid=<%=session._id%>">
+                                        <a href="/geo/actions?out=html&sid=<%=session._id%>">
                                             <%=session.name%>
                                         </a>
                                         <% if(session.active) {%><span class="label  label-danger">Active</span>

@@ -205,45 +205,15 @@ router.delete('/session', router.callbacks.deleteSession);
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [
- *       {
-            "request" : {
-                "timestamp_end" : 1459801715.18864,
-                "host" : "combine.urbanairship.com",
-                "timestamp_start" : 1459801715.15211,
-                "path" : "/warp9/",
-                "scheme" : "https",
-                "method" : "POST"
-            },
-            "response" : {
-                "status_code" : 200,
-                "reason" : "OK",
-                "timestamp_end" : 1459801715.5231,
-                "timestamp_start" : 1459801715.49952,
-                "contentLength" : 20
-            },
-            "sid" : "5702ce5752509d222dadf965",
-            "action" : "Entering username",
-            "_id" : "5702ce7352509d222dadf97e"
-        },
- *       {
-            "request" : {
-                "timestamp_end" : 1459801715.18864,
-                "host" : "combine.urbanairship.com",
-                "timestamp_start" : 1459801715.15211,
-                "path" : "/warp9/",
-                "scheme" : "https",
-                "method" : "POST"
-            },
-            "response" : {
-                "status_code" : 200,
-                "reason" : "OK",
-                "timestamp_end" : 1459801715.5231,
-                "timestamp_start" : 1459801715.49952,
-                "contentLength" : 20
-            },
-            "sid" : "5702ce5752509d222dadf965",
-            "action" : "Entering username",
-            "_id" : "5702ce7352509d222dadf97e"
+ *      {
+            "requested_at":1459805214.905286,
+            "action":"LogIn Screen",
+            "url":"device-api.urbanairship.com/api/user/BFIJbqbJTb2iPpG4fTLI7A/messages/",
+            "request_time":24,
+            "execution_time":361.6,
+            "response_time":44.5,
+            "total_time":430.2,
+            "response_size":"0 bytes"
         }
  *     ]
  *

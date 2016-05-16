@@ -102,8 +102,12 @@ function parseIPA(path, app_id) {
             name: data['metadata']['CFBundleName'],
             package: data['metadata']['CFBundleIdentifier']
         }
-        console.log(app_info. name, app_info.package);
-        db.collection('apps').update({'_id': new BSON.ObjectID(app_id)}, {$set: app_info}, function (err, result) {
+        console.log(app_info.name, app_info.package);
+        db.collection('apps').update({
+            '_id': new BSON.ObjectID(app_id)
+        }, {
+            $set: app_info
+        }, function (err, result) {
             if (err) {
                 console.log(err)
             } else {
@@ -122,8 +126,12 @@ function parseAPK(path, app_id) {
             name: data['manifest'][0]['application'][0]['@android:name'],
             package: data['manifest'][0]['@package']
         }
-        console.log(app_info. name, app_info.package);
-        db.collection('apps').update({'_id': new BSON.ObjectID(app_id)}, {$set: app_info}, function (err, result) {
+        console.log(app_info.name, app_info.package);
+        db.collection('apps').update({
+            '_id': new BSON.ObjectID(app_id)
+        }, {
+            $set: app_info
+        }, function (err, result) {
             if (err) {
                 console.log(err)
             } else {
@@ -167,9 +175,9 @@ exports.addApp = function (req, res) {
                     var r = result.ops[0]._id + ""
                     res.send(r);
                     var ext = serverPath.slice(-4)
-                    if(ext == '.ipa')
+                    if (ext == '.ipa')
                         parseIPA(serverPath, r)
-                    else if(ext == '.apk')
+                    else if (ext == '.apk')
                         parseAPK(serverPath, r)
                 }
             });
@@ -179,7 +187,11 @@ exports.addApp = function (req, res) {
 };
 
 exports.getApps = function (req, res) {
-    var sel = {path:0, createdAt:0, status: 0}
+    var sel = {
+        path: 0,
+        createdAt: 0,
+        status: 0
+    }
     db.collection('apps', function (err, collection) {
         collection.find({}, sel).limit(50).sort({
             'createdAt': -1
@@ -375,34 +387,74 @@ exports.deleteSession = function (req, res) {
         });
     });
 };
+var timeDiff = function (operand1, operand2) {
+    return Math.round((operand1 - operand2) * 10000) / 10;
+}
+var formatBytes = function (bytes) {
+    if (bytes == 0) return '0 bytes';
+    var sizes = [' bytes', ' KB', ' MB', ' GB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + sizes[i];
+}
+
+function getActions(session_id, excludes, cb) {
+    console.log("getActions", session_id);
+    db.collection('actions', function (err, collection) {
+        collection.find({
+            sid: new BSON.ObjectID(session_id),
+            'request.host': {
+                $nin: excludes
+            }
+        }).limit(50).sort({
+            'request.timestamp_end': -1
+        }).toArray(function (err, items) {
+            if (err)
+                cb(err, items)
+            else {
+                var _it = []
+                for (var i = 0; i < items.length; ++i) {
+                    _it.push({
+                        requested_at: items[i].request.timestamp_start,
+                        action: items[i].action,
+                        url: items[i].request.host + items[i].request.path,
+                        request_time: timeDiff(items[i].request.timestamp_end, items[i].request.timestamp_start),
+                        execution_time: timeDiff(items[i].response.timestamp_start, items[i].request.timestamp_end),
+                        response_time: timeDiff(items[i].response.timestamp_end, items[i].response.timestamp_start),
+                        total_time: timeDiff(items[i].response.timestamp_end, items[i].request.timestamp_start),
+                        response_size: formatBytes(items[i].response.contentLength)
+                    })
+                }
+                cb(err, _it)
+            }
+        });
+    });
+}
 
 exports.actions = function (req, res) {
-    var cursor = db.collection('sessions').find({
+    db.collection('sessions').find({
         _id: new BSON.ObjectID(req.query.sid)
-    });
-    cursor.each(function (err, session) {
-        if (!session)
+    }).toArray(function (err, session) {
+        if (err || session.length == 0) {
+            res.send({
+                error: "Session not Found"
+            })
             return
-        console.log("actions", req.query.sid, err, session);
+        }
+
         var excludes = ['metxms.citrix.com', /[^.\s]+\.apple\.com/g]
-        db.collection('actions', function (err, collection) {
-            collection.find({
-                sid: new BSON.ObjectID(req.query.sid),
-                'request.host': {
-                    $nin: excludes
-                }
-            }).limit(50).sort({
-                'request.timestamp_end': -1
-            }).toArray(function (err, items) {
+        getActions(session[0]._id, excludes, function (err, items) {
+            console.log("actions count", items.length, req.query.out);
+            if (req.query.out == 'html') {
                 var template = __dirname + '/../views/actions';
                 res.render(template, {
-                    siteTitle: "Geo Testing - " + session.name,
-                    session: session,
+                    siteTitle: "Geo Testing - " + session[0].name,
+                    session: session[0],
                     excludes: excludes,
                     actions: items
                 })
-            });
-        });
+            } else
+                res.json(items)
+        })
     });
 
 
