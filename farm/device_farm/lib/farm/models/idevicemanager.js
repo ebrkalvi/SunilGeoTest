@@ -9,15 +9,20 @@ IDeviceManager.prototype.list = function (cb) {
         if (err) {
             cb(err, stdout);
         } else {
-            var devices = stdout.match(/.+/g).map(function(udid){
-                return new IDevice(udid)
-            })
+            var devices = stdout.match(/.+/g) || []
+            if (devices)
+                devices = devices.map(function (udid) {
+                    return {
+                        udid: udid,
+                        platform: 'iOS'
+                    }
+                })
             cb(null, devices);
         }
     });
 };
 
-IDeviceManager.prototype.getDevice = function (udid, cb) {
+IDeviceManager.prototype.getDevice = function (udid) {
     return new IDevice(udid)
 };
 

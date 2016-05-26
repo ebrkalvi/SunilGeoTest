@@ -11,5 +11,6 @@ module.exports = router;
 router.callbacks    = require('./controllers/farm');
 router.models       = require('./models');
 
-router.get('/devices', router.callbacks.getDevices);
+router.get('/device', router.callbacks.getDevices);
+router.get('/device/:id', router.callbacks.getDeviceInfo);
 
