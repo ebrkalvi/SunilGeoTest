@@ -4,14 +4,15 @@ var bson = require("bson");
 var ipaMetadata = require('ipa-metadata');
 var parseApk = require('apk-parser');
 
-var Server = mongo.Server,
-    Db = mongo.Db;
 var BSON = bson.BSONPure.BSON
+    /*var Server = mongo.Server,
+        Db = mongo.Db;
 
-var server = new Server('52.9.101.199', 27017, {
-    auto_reconnect: true
-});
-db = new Db('geodb', server);
+    var server = new Server('52.9.101.199', 27017, {
+        auto_reconnect: true
+    });
+    db = new Db('geodb', server);*/
+db = require('../../common/mongoUtil.js').getDb()
 
 var activeSession
 var currentAction
@@ -412,16 +413,20 @@ function getActions(session_id, excludes, cb) {
             else {
                 var _it = []
                 for (var i = 0; i < items.length; ++i) {
-                    _it.push({
-                        requested_at: items[i].request.timestamp_start,
-                        action: items[i].action,
-                        url: items[i].request.host + items[i].request.path,
-                        request_time: timeDiff(items[i].request.timestamp_end, items[i].request.timestamp_start),
-                        execution_time: timeDiff(items[i].response.timestamp_start, items[i].request.timestamp_end),
-                        response_time: timeDiff(items[i].response.timestamp_end, items[i].response.timestamp_start),
-                        total_time: timeDiff(items[i].response.timestamp_end, items[i].request.timestamp_start),
-                        response_size: formatBytes(items[i].response.contentLength)
-                    })
+                    if (items[i].type == 'Network')
+                        _it.push({
+                            type: items[i].type,
+                            requested_at: items[i].request.timestamp_start,
+                            action: items[i].action,
+                            url: items[i].request.host + items[i].request.path,
+                            request_time: timeDiff(items[i].request.timestamp_end, items[i].request.timestamp_start),
+                            execution_time: timeDiff(items[i].response.timestamp_start, items[i].request.timestamp_end),
+                            response_time: timeDiff(items[i].response.timestamp_end, items[i].response.timestamp_start),
+                            total_time: timeDiff(items[i].response.timestamp_end, items[i].request.timestamp_start),
+                            response_size: formatBytes(items[i].response.contentLength)
+                        })
+                    else
+                        _it.push(items[i])
                 }
                 cb(err, _it)
             }

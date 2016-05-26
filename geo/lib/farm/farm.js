@@ -11,14 +11,6 @@ module.exports = router;
 router.callbacks    = require('./controllers/manager');
 router.models       = require('./models');
 
-//-- For increased module encapsulation, you could also serve templates with module-local
-//-- paths, but using shared layouts and partials may become tricky / impossible
-//var hbs = require('hbs');
-//app.set('views', __dirname + '/views');
-//app.set('view engine', 'handlebars');
-//app.engine('handlebars', hbs.__express);
-
-// Module's Routes. Please note this is actually under /hello, because module is attached under /hello
-
-router.get('/', router.callbacks.sayHello);
+router.get('/', router.callbacks.index);
+router.post('/register', router.callbacks.register);
 

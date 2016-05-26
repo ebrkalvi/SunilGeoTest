@@ -62,7 +62,8 @@ var trimString = function(passedString, startstring, endstring) {
                             </tr>
                         </thead>
                         <tbody>
-                            <%actions.forEach(function(action){%>
+                            <%actions.forEach(function(action){ 
+                                if(action.type == 'Network') {    %>
                             <tr>
                                 <td><%=formatTS(action.requested_at)%></td>
                                 <td><%=action.action%></td>
@@ -72,8 +73,9 @@ var trimString = function(passedString, startstring, endstring) {
                                 <td><%=action.response_time%></td>
                                 <td><%=action.total_time%></td>
                                 <td><%=action.response_size%></td>
-                            </tr>
-                            <%});%>
+                            </tr> <% } else { %>
+                                <tr><td colspan=8><%=action.action%></td></tr>
+                                <% } });%>
                         </tbody>
                     </table>
                 </div>

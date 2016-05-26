@@ -1,5 +1,5 @@
 var exports = module.exports;
-var db = require('./mongoUtil.js').getDb()
+var db = require('../../common/mongoUtil.js').getDb()
 var crypto = require('crypto')
 
 var WebSocketServer = require('ws').Server,
@@ -11,7 +11,40 @@ var WebSocketServer = require('ws').Server,
 var connections = {};
 
 var listener = {}
-//listener.
+    //listener.
+
+exports.index = function (req, res) {
+    console.log('-> index', req.body)
+    res.status(200).send({});
+}
+
+exports.register = function (req, res) {
+    console.log('-> register', req.ip, req.body)
+    var farm = {
+        uid: req.my_id,
+        pwd: crypto.randomBytes(32).toString('hex'),
+        registered_at: new Date()
+    }
+    db.collection('farms').update({
+        uid: req.my_id
+    }, farm, {
+        safe: true,
+        upsert: true
+    }, function (err, result) {
+        if (err) {
+            res.status(200).json({
+                err: err,
+                status: -2
+            });
+        } else {
+            res.status(200).json({
+                pwd: farm.pwd,
+                status: 0
+            })
+            //wss.notifyNewUser(user.phone)
+        }
+    })
+}
 
 exports.notifyNewUser = function (number) {
     db.collection('users').find({
@@ -54,11 +87,11 @@ wss.on('connection', function connection(client) {
             };
             if (req.subject == 'login') {
                 var login = req.body
-                db.collection('users').find({
-                    phone: login.number,
+                db.collection('farms').find({
+                    uid: login.udid,
                     pwd: login.pwd
                 }).count(function (err, count) {
-                    console.log('user.count: ', err, count, client.upgradeReq.headers['sec-websocket-key']);
+                    console.log('farms.count: ', err, count, client.upgradeReq.headers['sec-websocket-key']);
                     if (count == 1) {
                         res.status = 0
                         res.token = crypto.randomBytes(32).toString('hex')
