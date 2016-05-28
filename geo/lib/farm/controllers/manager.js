@@ -14,21 +14,21 @@ var listener = {}
 
 exports.index = function (req, res) {
     console.log('-> index', req.body)
-    var conns = Object.keys(connections)
-    console.log("Farms count", conns.length)
-    var farms = conns.map(function (conn_key) {
-        var connection = connections[conn_key]
-        return {
-            uid: connection.uid,
-            ip: connection.ip,
-            registered_at: connection.registered_at
+    db.collection('farms').find({}, {
+        pwd: 0
+    }).toArray(function (err, farms) {
+        console.log("Farms count", farms.length)
+        for (var i = 0; i < farms.length; ++i) {
+            farms[i].isOnline = connections[farms[i].uid] ? true : false
+            //console.log("Farm", i, farms[i].uid, farms[i].isOnline)
         }
+        var template = __dirname + '/../views/farms';
+        res.render(template, {
+            siteTitle: "Geo Testing",
+            farms: farms
+        })
     })
-    var template = __dirname + '/../views/farms';
-    res.render(template, {
-        siteTitle: "Geo Testing",
-        farms: farms
-    })
+
 }
 
 exports.register = function (req, res) {
@@ -60,15 +60,11 @@ exports.register = function (req, res) {
     })
 }
 
-exports.notifyNewUser = function (number) {
-    db.collection('users').find({
-        contacts: {
-            $elemMatch: {
-                $eq: number
-            }
-        }
+exports.notifyNewFarm = function (uid) {
+    db.collection('farms').find({
+        uid: uid
     }, {
-        phone: 1,
+        uid: 1,
         _id: 0
     }).toArray(function (err, items) {
         console.log('notifyNewUser', err)
@@ -104,7 +100,11 @@ wss.on('connection', function connection(client) {
                 db.collection('farms').findOne({
                     uid: login.uid,
                     pwd: login.pwd
-                }, {pwd: 0, _id: 0, uid: 0}, function (err, farm) {
+                }, {
+                    pwd: 0,
+                    _id: 0,
+                    uid: 0
+                }, function (err, farm) {
                     console.log('farms.count: ', err, farm, login);
                     if (!err && farm.ip) {
                         res.status = 0

@@ -23,7 +23,7 @@
                             <tr>
                                 <td><%=farm.uid%></td>
                                 <td><%=farm.ip%></td>
-                                <td><span class="label label-success">Online</span></td>
+                                <td><span class="label label-<%=(farm.isOnline ? 'success' : 'danger')%>"><%=(farm.isOnline ? 'Online' : 'Offline')%></span></td>
                                 <td><%=farm.registered_at%></td>
                                 <td></td>
                             </tr>
