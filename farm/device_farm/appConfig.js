@@ -8,7 +8,7 @@ exports.setup = function (runningApp, callback) {
     runningApp.disable("x-powered-by");
 
     nconf.use('file', {
-        file: './config.json'
+        file: './.config.json'
     });
     nconf.load();
 
@@ -30,30 +30,36 @@ exports.setup = function (runningApp, callback) {
     runningApp.set('view engine', 'handlebars');
     runningApp.engine('handlebars', require('hbs').__express);
 
-    request.post(
-        'http://localhost:3000/farm/register', {
-            form: {
-                my_id: global.my_id
+    global.my_pwd = nconf.get('pwd')
+    if (!global.my_pwd) {
+        request.post(
+            'http://localhost:3000/farm/register', {
+                form: {
+                    my_id: global.my_id
+                }
+            },
+            function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    console.log(body)
+                    nconf.set('pwd', JSON.parse(body).pwd)
+                    nconf.save(function (err) {
+                        if (err) {
+                            console.error(err.message);
+                            return;
+                        }
+                        console.log('Password saved successfully.', nconf.get('pwd'));
+                        global.my_pwd = nconf.get('pwd')
+                        runningApp.use('/farm', require('farm'));
+                    });
+                } else {
+                    console.error("Failed registering", error)
+                }
             }
-        },
-        function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                console.log(body)
-                nconf.set('pwd', JSON.parse(body).pwd)
-                nconf.save(function (err) {
-                    if (err) {
-                        console.error(err.message);
-                        return;
-                    }
-                    console.log('Password saved successfully.', nconf.get('pwd'));
-                });
-            } else {
-                console.error("Failed registering", error)
-            }
-        }
-    );
+        );
+    } else {
+        runningApp.use('/farm', require('farm'));
+    }
 
-    runningApp.use('/farm', require('farm')); // attach to sub-route
 
     // API endpoint attached to root route:
     runningApp.use('/', require('homedoc')); // attach to root route

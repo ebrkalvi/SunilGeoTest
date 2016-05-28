@@ -19,26 +19,8 @@ exports.setup = function (runningApp, callback) {
     runningApp.set('layout', __dirname + '/views/layouts/main.ejs');
 
     mongoUtil.connectToServer(function (err, _db) {
-        console.log("connectToMongoServer", err)
-        _db.collection('farms', {
-            strict: true
-        }, function (err, collection) {
-            if (err) {
-                console.log("The 'farms' collection doesn't exist.");
-            } else {
-                collection.createIndex({
-                    "uid": 1
-                }, {
-                    unique: true
-                })
-                collection.count(function (err, count) {
-                    console.log("The 'users' collection...", count);
-                })
-            }
-        });
-
         runningApp.use('/geo', require('geo'));
-        runningApp.use('/farm', require('farm'));
+        runningApp.use('/farms', require('farm'));
     });
 
     if (typeof callback === 'function') {

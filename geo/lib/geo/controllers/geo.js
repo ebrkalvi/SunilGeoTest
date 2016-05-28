@@ -64,37 +64,6 @@ function insertEvent(geo, res) {
     });
 }
 
-db.open(function (err, db) {
-    if (!err) {
-        console.log("Connected to 'geodb' database");
-        db.collection('actions', {
-            strict: true
-        }, function (err, collection) {
-            if (err) {
-                console.log("The 'actions' collection doesn't exist.");
-            } else {
-                collection.count(function (err, count) {
-                    console.log("The 'actions' collection...", count);
-                })
-            }
-        });
-
-        db.collection('sessions', {
-            strict: true
-        }, function (err, collection) {
-            if (err) {
-                console.log("The 'sessions' collection doesn't exist.");
-            } else {
-                collection.count(function (err, count) {
-                    console.log("The 'sessions' collection...", count);
-                })
-            }
-        });
-
-    } else
-        console.log("Error connecting to 'geodb' database", err);
-});
-
 function parseIPA(path, app_id) {
     ipaMetadata(path, function (error, data) {
         var app_info = {

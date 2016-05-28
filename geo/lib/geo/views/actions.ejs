@@ -9,79 +9,53 @@ var trimString = function(passedString, startstring, endstring) {
    return theString
 };
 %>
-<div class="row">
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Geo Testing Tool</a>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="/docs">API Documentation</a></li>
-                    <li><a href="#link">About</a></li>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <h1 class="page-header"><%=session.name%> - <%=session.appName%></h1>
+            <h4 class="sub-header pull-right"><%=session.createdAt%></h4>
+            <div class="row placeholders">
+                <h4 class="sub-header">Excluded hosts:</h4>
+                <ul>
+                    <%excludes.forEach(function(exclude){%>
+                    <li><%=exclude%></li>
+                    <%});%>
                 </ul>
-                <!-- form class="navbar-form navbar-right">
-                    <input type="text" class="form-control" placeholder="Search...">
-                </form -->
             </div>
-        </div>
-    </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12 col-md-12 main">
-                <h1 class="page-header"><%=session.name%> - <%=session.appName%></h1>
-                <h4 class="sub-header pull-right"><%=session.createdAt%></h4>
-                <div class="row placeholders">
-                    <h4 class="sub-header">Excluded hosts:</h4>
-                    <ul>
-                        <%excludes.forEach(function(exclude){%>
-                        <li><%=exclude%></li>
-                        <%});%>
-                    </ul>
-                </div>
-                <a class="btn btn-large btn-info" href="/geo">Sessions</a>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Requested At</th>
-                                <th>Action</th>
-                                <th>URL</th>
-                                <th>Request time (ms)</th>
-                                <th>Execution time (ms)</th>
-                                <th>Response time (ms)</th>
-                                <th>Total time (ms)</th>
-                                <th>Response size</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <%actions.forEach(function(action){ 
-                                if(action.type == 'Network') {    %>
-                            <tr>
-                                <td><%=formatTS(action.requested_at)%></td>
-                                <td><%=action.action%></td>
-                                <td><%=trimString(action.url)%></td>
-                                <td><%=action.request_time%></td>
-                                <td><%=action.execution_time%></td>
-                                <td><%=action.response_time%></td>
-                                <td><%=action.total_time%></td>
-                                <td><%=action.response_size%></td>
-                            </tr> <% } else { %>
-                                <tr><td colspan=8><%=action.action%></td></tr>
-                                <% } });%>
-                        </tbody>
-                    </table>
-                </div>
+            <a class="btn btn-large btn-info" href="/geo">Sessions</a>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Requested At</th>
+                            <th>Action</th>
+                            <th>URL</th>
+                            <th>Request time (ms)</th>
+                            <th>Execution time (ms)</th>
+                            <th>Response time (ms)</th>
+                            <th>Total time (ms)</th>
+                            <th>Response size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%actions.forEach(function(action){ 
+                            if(action.type == 'Network') {    %>
+                        <tr>
+                            <td><%=formatTS(action.requested_at)%></td>
+                            <td><%=action.action%></td>
+                            <td><%=trimString(action.url)%></td>
+                            <td><%=action.request_time%></td>
+                            <td><%=action.execution_time%></td>
+                            <td><%=action.response_time%></td>
+                            <td><%=action.total_time%></td>
+                            <td><%=action.response_size%></td>
+                        </tr> <% } else { %>
+                            <tr><td colspan=8><%=action.action%></td></tr>
+                            <% } });%>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-
-
 </div>
+
