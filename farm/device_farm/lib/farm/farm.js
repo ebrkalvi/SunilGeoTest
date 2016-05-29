@@ -16,10 +16,16 @@ var reqId = 0
 
 function sendRequest(sub, req) {
     var _req = {}
+    _req.origin = 'Client'
     _req.reqId = reqId++;
     _req.subject = sub
     _req.body = req
     ws.send(JSON.stringify(_req));
+}
+
+function sendResponse(res) {
+    var _res = res
+    ws.send(JSON.stringify(_res));
 }
 
 function ws_open() {
@@ -35,7 +41,26 @@ function ws_close() {
 }
 
 function ws_message(data, flags) {
-    console.log('-> message', data)
+    var req = JSON.parse(data)
+    console.log('-> message', req)
+    if (req.origin == 'Client') {
+         console.error('Client callback', req)
+    } else if (req.origin == 'Server') {
+        if (req.subject == 'devices') {
+            router.callbacks.getDevices(function (err, devices) {
+                req.err = err
+                req.body = devices
+                sendResponse(req)
+            })
+        } else {
+            req.body = {
+                error: 'Unkown Request'
+            }
+            sendResponse(req)
+        }
+    } else {
+        console.error('Unknown origin', data, req)
+    }
 }
 
 var connect = function () {

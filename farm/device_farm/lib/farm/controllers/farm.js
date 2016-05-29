@@ -3,10 +3,10 @@ var exports = module.exports;
 var IDeviceManager = require('../models/idevicemanager');
 
 var deviceManager = new IDeviceManager()
-exports.getDevices = function (req, res) {
+exports.getDevices = function (cb) {
     deviceManager.list(function (err, devices) {
         console.log("-> getDevices", err, devices)
-        res.status(200).send(devices);
+        cb(err, devices);
     })
 };
 

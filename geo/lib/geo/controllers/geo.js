@@ -382,7 +382,7 @@ function getActions(session_id, excludes, cb) {
             else {
                 var _it = []
                 for (var i = 0; i < items.length; ++i) {
-                    if (items[i].type == 'Network')
+                    if (items[i].type != 'User')
                         _it.push({
                             type: items[i].type,
                             requested_at: items[i].request.timestamp_start,

@@ -9,8 +9,21 @@ var WebSocketServer = require('ws').Server,
 
 // initialization
 var connections = {};
-
 var listener = {}
+var requests = {}
+
+var reqId = 0
+
+function sendRequest(conn, sub, req, cb) {
+    var _req = {}
+    _req.origin = 'Server'
+    _req.reqId = reqId++;
+    _req.subject = sub
+    _req.body = req
+    if (cb)
+        requests[_req.reqId] = cb
+    conn.send(JSON.stringify(_req));
+}
 
 exports.index = function (req, res) {
     console.log('-> index', req.body)
@@ -20,7 +33,7 @@ exports.index = function (req, res) {
         console.log("Farms count", farms.length)
         for (var i = 0; i < farms.length; ++i) {
             farms[i].isOnline = connections[farms[i].uid] ? true : false
-            //console.log("Farm", i, farms[i].uid, farms[i].isOnline)
+                //console.log("Farm", i, farms[i].uid, farms[i].isOnline)
         }
         var template = __dirname + '/../views/farms';
         res.render(template, {
@@ -28,7 +41,28 @@ exports.index = function (req, res) {
             farms: farms
         })
     })
+}
 
+exports.showDevices = function (req, res) {
+    console.log('-> showDevices', req.body, req.query)
+    var template = __dirname + '/../views/devices';
+    if (req.query.uid && connections.hasOwnProperty(req.query.uid)) {
+        var conn = connections[req.query.uid]
+        sendRequest(conn, 'devices', {
+            action: 'List'
+        }, function (result) {
+            console.log('-> devices List', result)
+            res.render(template, {
+                siteTitle: "Geo Testing",
+                devices: result
+            })
+        })
+    } else {
+        res.render(template, {
+            siteTitle: "Geo Testing",
+            devices: []
+        })
+    }
 }
 
 exports.register = function (req, res) {
@@ -91,8 +125,13 @@ wss.on('connection', function connection(client) {
     client.on('message', function incoming(message) {
         var req = JSON.parse(message)
         console.log('received', req.type, req.reqId, req.subject, client.upgradeReq.headers['sec-websocket-key']);
-        if (req.hasOwnProperty('reqId')) {
+        if (req.origin == 'Server') {
+            console.log('Callback', req)
+            requests[req.reqId](req.body)
+            delete requests[req.reqId]
+        } else if (req.hasOwnProperty('reqId')) {
             var res = {
+                origin: req.origin,
                 reqId: req.reqId
             };
             if (req.subject == 'login') {
@@ -110,7 +149,6 @@ wss.on('connection', function connection(client) {
                         res.status = 0
                         res.token = crypto.randomBytes(32).toString('hex')
                         client.ip = farm.ip
-                        client.registered_at = farm.registered_at
                         client.uid = login.uid
                         client.token = res.token
                         connections[client.uid] = client

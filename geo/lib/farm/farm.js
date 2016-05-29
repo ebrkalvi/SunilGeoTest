@@ -13,4 +13,5 @@ router.models       = require('./models');
 
 router.get('/', router.callbacks.index);
 router.post('/register', router.callbacks.register);
+router.get('/device/index.html', router.callbacks.showDevices)
 

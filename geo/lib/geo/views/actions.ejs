@@ -39,7 +39,7 @@ var trimString = function(passedString, startstring, endstring) {
                     </thead>
                     <tbody>
                         <%actions.forEach(function(action){ 
-                            if(action.type == 'Network') {    %>
+                            if(action.type != 'User') {    %>
                         <tr>
                             <td><%=formatTS(action.requested_at)%></td>
                             <td><%=action.action%></td>
