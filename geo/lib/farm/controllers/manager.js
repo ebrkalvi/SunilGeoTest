@@ -54,6 +54,7 @@ exports.showDevices = function (req, res) {
             console.log('-> devices List', result)
             res.render(template, {
                 siteTitle: "Geo Testing",
+                uid: req.query.uid,
                 devices: result
             })
         })
@@ -62,6 +63,21 @@ exports.showDevices = function (req, res) {
             siteTitle: "Geo Testing",
             devices: []
         })
+    }
+}
+
+exports.getDeviceInfo = function (req, res) {
+    console.log('-> getDeviceInfo', req.params.uid, req.params.udid, req.body)
+    if (req.params.uid && connections.hasOwnProperty(req.params.uid) && req.params.udid) {
+        var conn = connections[req.params.uid]
+        sendRequest(conn, 'device', {
+            udid: req.params.udid
+        }, function (result) {
+            console.log('-> device info')
+            res.status(200).json(result)
+        })
+    } else {
+        res.status(200).json({})
     }
 }
 

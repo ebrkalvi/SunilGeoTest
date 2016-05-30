@@ -10,11 +10,10 @@ exports.getDevices = function (cb) {
     })
 };
 
-exports.getDeviceInfo = function (req, res) {
-    console.log("-> getDeviceInfo", req.params)
-    var udid = req.params.id
+exports.getDeviceInfo = function (udid, cb) {
+    console.log("-> getDeviceInfo", udid)
     deviceManager.getDevice(udid).getInfo(function(err, info) {
         console.log("-> getDeviceInfo", err, info)
-        res.status(200).send(info);
+        cb(err, info);
     })
 };

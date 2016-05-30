@@ -1,19 +1,31 @@
 <script>
-    function showInfo(udid) {
-        var res = $('#dvDemoResults');
+    function responseHanlder(res) {
+        var data = [];
+
+        for (var key in res) {
+            data.push({
+                key: key,
+                value: res[key]
+            });
+        }
+        return data;
+    }
+
+    function showInfo(uid, udid) {
         $.ajax({
             type: "GET",
-            url: "/farms/",
+            url: "/farms/devices/" + uid + "/device/" + udid,
             dateType: 'json',
-            data: {udid: udid},
+            data: {},
             success: function (data, textStatus, jqXHR) {
-                res.html(JSON.stringify(data, null, 4));
+                //res.html(JSON.stringify(data, null, 4));
+                for(var i=0; i<data.length; ++i) {
+                    var key = Object.keys(data[i])[0]
+                    $("#table tbody").append('<tr><td>'+key+'</td><td>'+data[i][key]+'</td></tr>')
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 res.html(textStatus + ":" + errorThrown);
-            },
-            complete: function () {
-                res.show()
             }
         });
         $('#myModal').modal('show');
@@ -37,7 +49,9 @@
                     <h4 class="modal-title">Device Info</h4>
                 </div>
                 <div class="modal-body">
-                    <pre id="dvDemoResults" style="display: none; padding:4px; margin:2px;"></pre>
+                    <table id="table" class="table-striped">
+                        <tbody></tbody>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -59,15 +73,22 @@
                             <th>...</th>
                         </tr>
                     </thead>
-                    <tbody><%- devices.length || "<tr><td colspan=4>No devices plugged into this Farm!</td></tr>" %>
-                        <% devices.forEach(function(device) { %>
-                            <tr>
-                                <td><a href='#' onclick="return showInfo('<%=device.udid%>')"><%=device.udid%></a></td>
-                                <td><%=device.platform%></td>
-                                <td><span class="label label-success">Plugged In</span></td>
-                                <td></td>
-                            </tr>
-                            <% }) %>
+                    <tbody>
+                        <%- devices.length || "<tr><td colspan=4>No devices plugged into this Farm!</td></tr>" %>
+                            <% devices.forEach(function(device) { %>
+                                <tr>
+                                    <td>
+                                        <a href='#' onclick="return showInfo('<%=uid%>','<%=device.udid%>')">
+                                            <%=device.udid%>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <%=device.platform%>
+                                    </td>
+                                    <td><span class="label label-success">Plugged In</span></td>
+                                    <td></td>
+                                </tr>
+                                <% }) %>
                     </tbody>
                 </table>
             </div>

@@ -52,6 +52,12 @@ function ws_message(data, flags) {
                 req.body = devices
                 sendResponse(req)
             })
+        } else if (req.subject == 'device') {
+            router.callbacks.getDeviceInfo(req.body.udid, function (err, info) {
+                req.err = err
+                req.body = info
+                sendResponse(req)
+            })
         } else {
             req.body = {
                 error: 'Unkown Request'
