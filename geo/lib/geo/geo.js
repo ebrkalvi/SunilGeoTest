@@ -8,7 +8,7 @@ router.models = require('./models');
 
 
 router.get('/', router.callbacks.sessions);
-router.get('/apps', router.callbacks.apps);
+router.get('/app.html', router.callbacks.showApps);
 
 /**
  * @api {get} /app GetApps
@@ -47,6 +47,24 @@ router.get('/app', router.callbacks.getApps);
  * @apiError The <code>id</code> of the App was not found.
  */
 router.get('/app/:id', router.callbacks.getApp);
+
+router.get('/app/:id/script.html', router.callbacks.showScripts);
+
+router.get('/app/:id/script', router.callbacks.getScripts);
+
+router.post('/app/:id/script', router.callbacks.addScript);
+
+router.put('/script/:script', router.callbacks.updateScript);
+
+router.delete('/script/:script', router.callbacks.deleteScript);
+
+router.get('/app/:id/script/:script/session.html', router.callbacks.showSessions);
+
+router.get('/app/:id/script/:script/session', router.callbacks.getSessions);
+
+router.post('/app/:id/script/:script/session', router.callbacks.addSession);
+
+router.delete('/session/:session', router.callbacks.deleteSession);
 
 /**
  * @api {post} /app AddApp

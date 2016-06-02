@@ -1,58 +1,4 @@
 <script>
-    function activateSession(sid) {
-        $.ajax({
-            type: "POST",
-            url: '/geo/session/activate',
-            dateType: 'json',
-            data: {
-                sid: sid
-            },
-            success: function (data, textStatus, jqXHR) {
-                location.reload();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert(errorThrown);
-            },
-            complete: function () {
-
-            }
-        });
-        return false;
-    }
-
-    function deleteSession(sid) {
-        $.ajax({
-            type: "DELETE",
-            url: '/geo/session',
-            dateType: 'json',
-            data: {
-                sid: sid
-            },
-            success: function (data, textStatus, jqXHR) {
-                location.reload();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert(errorThrown);
-            },
-            complete: function () {
-
-            }
-        });
-        return false;
-    }
-
-    function createSession() {
-        var txt = $('#session-name');
-        var val = txt.val();
-        if (val && val != "") {
-            doApiCall('/geo/session', {
-                name: val,
-                appName: $('#session-app').val()
-            });
-        }
-        return false;
-    }
-
     function createApp() {
         var formData = new FormData();
         console.log($('#uploadFile')[0].files[0])
@@ -94,30 +40,10 @@
             processData: false
         }, 'json');
     }
-
-    function doApiCall(path, _data) {
-        var res = $('#dvDemoResults');
-        $.ajax({
-            type: "POST",
-            url: path,
-            dateType: 'json',
-            data: _data,
-            success: function (data, textStatus, jqXHR) {
-                res.html(JSON.stringify(data, null, 4));
-                window.location = '/geo/actions?sid=' + data;
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                res.html(textStatus + ":" + errorThrown);
-            },
-            complete: function () {
-                res.show()
-            }
-        });
-    }
 </script>
 <ul class="nav nav-tabs">
     <li><a href="/geo">Sessions</a></li>
-    <li class="active"><a href="/geo/apps">Apps</a></li>
+    <li class="active"><a href="/geo/app.html">Apps</a></li>
     <li><a href="/farms">Farms</a></li>
 </ul>
 <div class="container-fluid">
@@ -161,32 +87,20 @@
                             <th>Platform</th>
                             <th>Status</th>
                             <th>Created At</th>
+                            <th>Scripts</th>
                             <th>...</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% apps.forEach(function(app) { %>
                             <tr>
-                                <td>
-                                    <a href="/geo/apps?id=<%=app._id%>">
-                                        <%=app.name%>
-                                    </a>
-                                </td>
-                                <td>
-                                    <%= app.package %>
-                                </td>
-                                 <td>
-                                    <%= app.platform %>
-                                </td>
-                                <td>
-                                    <%= app.status %>
-                                </td>
-                                <td>
-                                    <%= app.createdAt %>
-                                </td>
-                                <td>
-                                    <button onclick="return deleteSession('<%=app._id%>')">New Session</button>
-                                </td>
+                                <td><a href="/geo/app/<%=app._id%>"><%=app.name%></a></td>
+                                <td><%= app.package %></td>
+                                <td><%= app.platform %></td>
+                                <td><%= app.status %></td>
+                                <td><%= app.createdAt %></td>
+                                <td><a href="/geo/app/<%=app._id%>/script.html">0</a></td>
+                                <td></td>
                             </tr>
                             <% }) %>
                     </tbody>

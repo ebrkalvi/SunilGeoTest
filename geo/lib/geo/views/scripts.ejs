@@ -1,5 +1,5 @@
 <script>
-    function createSession(app_id) {
+    function createScript(app_id) {
         $("#fileUploadError").addClass("hide");
         
         var name = $('#script-name').val();
@@ -59,10 +59,8 @@
     <ol class="breadcrumb">
         <li><a href="/geo/app.html">Apps</a></li>
         <li><a href="/geo/app.html"><%=app_name%></a></li>
-        <li><a href="/geo/app/<%=app_id%>/script.html">Scripts</a></li>
-        <li><a href="/geo/app/<%=app_id%>/script.html"><%=script_name%></a></li>
-        <li class="active">Sessions</li>
-        <a href="#" class="pull-right" data-toggle="modal" data-target="#myApp">New Session</a>
+        <li class="active">Scripts</li>
+        <a href="#" class="pull-right" data-toggle="modal" data-target="#myApp">New Script</a>
     </ol>
     <!-- Modal -->
     <div class="modal fade" id="myApp" role="dialog">
@@ -89,7 +87,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="return createSession('<%=app_id%>');">Start</button>
+                    <button type="button" class="btn btn-primary" onclick="return createScript('<%=app_id%>');">Create</button>
                 </div>
             </div>
 
@@ -101,18 +99,21 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th>Name</th>
                             <th>Status</th>
-                            <th>Ran At</th>
+                            <th>Created At</th>
                             <th>...</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% sessions.forEach(function(session) { %>
+                        <% scripts.forEach(function(script) { %>
                             <tr>
-                                <td><%=session.status%></td>
-                                <td><%=session.createdAt%></td>
+                                <td><a href="/geo/app/<%=app_id%>/script/<%=script._id%>/session.html"><%=script.name%></a></td>
+                                <td><%=script.status%></td>
+                                <td><%=script.createdAt%></td>
                                 <td>
-                                    <button onclick="return deleteSession('<%=session._id%>')">Delete</button>
+                                    <button onclick="return updateScript('<%=script._id%>')">Update</button>
+                                    <button onclick="return deleteScript('<%=script._id%>')">Delete</button>
                                 </td>
                             </tr>
                             <% }) %>

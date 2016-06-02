@@ -111,6 +111,209 @@ function parseAPK(path, app_id) {
     });
 }
 
+exports.showSessions = function (req, res) {
+    console.log("-> Sessions", req.params);
+    db.collection('apps').findOne({
+        _id: new BSON.ObjectID(req.params.id)
+    }, {
+        _id: 0,
+        name: 1
+    }, function (err, app) {
+        console.log("app", err, app)
+        if (err || !app) {
+            res.status(404).send({
+                err: err || "No such app found"
+            })
+            return
+        }
+        db.collection('scripts').findOne({
+            _id: new BSON.ObjectID(req.params.script)
+        }, {
+            _id: 0,
+            name: 1
+        }, function (err, script) {
+            console.log("script", err, script)
+            if (err || !script) {
+                res.status(404).send({
+                    err: err || "No such script found"
+                })
+                return
+            }
+            db.collection('sessions').find({
+                script_id: new BSON.ObjectID(req.params.script)
+            }, {
+                script_id: 0
+            }).limit(50).sort({
+                'createdAt': -1
+            }).toArray(function (err, items) {
+                console.log("Sessions count=", items)
+                var template = __dirname + '/../views/sessions';
+                res.render(template, {
+                    siteTitle: "Geo Testing",
+                    app_name: app.name,
+                    app_id: req.params.id,
+                    script_name: script.name,
+                    script_id: req.params.script,
+                    sessions: items
+                })
+            })
+        })
+    })
+}
+
+exports.getSessions = function (req, res) {
+    res.status(501).json({
+        err: "Not yet implemented!"
+    })
+}
+
+exports.addSession = function (req, res) {
+    var session = req.body;
+    console.log('Adding Session: ', script, req.files);
+    var date_now = new Date()
+    var serverPath = 'uploads/scripts/' + date_now.getTime() + req.files.file.name;
+
+    require('fs').rename(
+        req.files.file.path,
+        serverPath,
+        function (err) {
+            if (err) {
+                console.log(err)
+                res.send({
+                    error: 'Error uploading script'
+                });
+                return;
+            }
+            console.log('Upload Success: ' + serverPath);
+            var doc = {
+                name: script.name,
+                app_id: new BSON.ObjectID(req.params.id),
+                createdAt: date_now,
+                path: serverPath,
+                status: 'CREATED'
+            }
+            db.collection('scripts').insert(doc, {}, function (err, result) {
+                if (err) {
+                    console.log(err)
+                    res.send({
+                        error: 'An error has occurred',
+                    });
+                } else {
+                    console.log('Success: ' + JSON.stringify(result));
+                    var r = result.ops[0]._id + ""
+                    res.send(r);
+                }
+            });
+        }
+    );
+
+}
+
+exports.deleteSession = function (req, res) {
+    res.status(501).json({
+        err: "Not yet implemented!"
+    })
+}
+
+exports.showScripts = function (req, res) {
+    console.log("-> scripts", req.params);
+    db.collection('apps').findOne({
+        _id: new BSON.ObjectID(req.params.id)
+    }, {
+        _id: 0,
+        name: 1
+    }, function (err, app) {
+        console.log("apps", err, app)
+        if (err || !app) {
+            res.status(404).send({
+                err: err || "No such app found"
+            })
+            return
+        }
+        db.collection('scripts').find({
+            app_id: new BSON.ObjectID(req.params.id)
+        }, {
+            app_id: 0
+        }).limit(50).sort({
+            'createdAt': -1
+        }).toArray(function (err, items) {
+            console.log("Scripts count=", items)
+            var template = __dirname + '/../views/scripts';
+            res.render(template, {
+                siteTitle: "Geo Testing",
+                app_name: app.name,
+                app_id: req.params.id,
+                scripts: items
+            })
+        })
+    })
+}
+
+exports.getScripts = function (req, res) {
+    res.status(501).json({
+        err: "Not yet implemented!"
+    })
+}
+
+exports.addScript = function (req, res) {
+    var script = req.body;
+    console.log('Adding Script: ', script, req.files);
+    var date_now = new Date()
+    var serverPath = 'uploads/scripts/' + date_now.getTime() + req.files.file.name;
+
+    require('fs').rename(
+        req.files.file.path,
+        serverPath,
+        function (err) {
+            if (err) {
+                console.log(err)
+                res.send({
+                    error: 'Error uploading script'
+                });
+                return;
+            }
+            console.log('Upload Success: ' + serverPath);
+            var doc = {
+                name: script.name,
+                app_id: new BSON.ObjectID(req.params.id),
+                createdAt: date_now,
+                path: serverPath,
+                status: 'CREATED'
+            }
+            db.collection('scripts').insert(doc, {}, function (err, result) {
+                if (err) {
+                    console.log(err)
+                    res.send({
+                        error: 'An error has occurred',
+                    });
+                } else {
+                    console.log('Success: ' + JSON.stringify(result));
+                    var r = result.ops[0]._id + ""
+                    res.send(r);
+                }
+            });
+        }
+    );
+
+}
+
+exports.updateScript = function (req, res) {
+    /*{scripts: {
+            $elemMatch: {
+                {$eq: number}
+            }
+        }*/
+    res.status(501).json({
+        err: "Not yet implemented!"
+    })
+}
+
+exports.deleteScript = function (req, res) {
+    res.status(501).json({
+        err: "Not yet implemented!"
+    })
+}
+
 exports.addApp = function (req, res) {
     var app = req.body;
     console.log('Adding App: ', req.files);
@@ -193,7 +396,7 @@ exports.getApp = function (req, res) {
     });
 };
 
-exports.apps = function (req, res) {
+exports.showApps = function (req, res) {
     console.log("-> apps");
     db.collection('apps').find().limit(50).sort({
         'createdAt': -1
