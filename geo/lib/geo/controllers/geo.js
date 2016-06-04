@@ -116,8 +116,8 @@ exports.showSessions = function (req, res) {
     db.collection('apps').findOne({
         _id: new BSON.ObjectID(req.params.id)
     }, {
-        _id: 0,
-        name: 1
+        name: 1,
+        platform: 1
     }, function (err, app) {
         console.log("app", err, app)
         if (err || !app) {
@@ -132,7 +132,7 @@ exports.showSessions = function (req, res) {
             _id: 0,
             name: 1
         }, function (err, script) {
-            console.log("script", err, script)
+            console.log("script", err)
             if (err || !script) {
                 res.status(404).send({
                     err: err || "No such script found"
@@ -150,8 +150,7 @@ exports.showSessions = function (req, res) {
                 var template = __dirname + '/../views/sessions';
                 res.render(template, {
                     siteTitle: "Geo Testing",
-                    app_name: app.name,
-                    app_id: req.params.id,
+                    app: app,
                     script_name: script.name,
                     script_id: req.params.script,
                     sessions: items
@@ -168,45 +167,39 @@ exports.getSessions = function (req, res) {
 }
 
 exports.addSession = function (req, res) {
-    var session = req.body;
-    console.log('Adding Session: ', script, req.files);
-    var date_now = new Date()
-    var serverPath = 'uploads/scripts/' + date_now.getTime() + req.files.file.name;
-
-    require('fs').rename(
-        req.files.file.path,
-        serverPath,
-        function (err) {
-            if (err) {
-                console.log(err)
-                res.send({
-                    error: 'Error uploading script'
-                });
-                return;
-            }
-            console.log('Upload Success: ' + serverPath);
-            var doc = {
-                name: script.name,
-                app_id: new BSON.ObjectID(req.params.id),
-                createdAt: date_now,
-                path: serverPath,
-                status: 'CREATED'
-            }
-            db.collection('scripts').insert(doc, {}, function (err, result) {
-                if (err) {
-                    console.log(err)
-                    res.send({
-                        error: 'An error has occurred',
-                    });
-                } else {
-                    console.log('Success: ' + JSON.stringify(result));
-                    var r = result.ops[0]._id + ""
-                    res.send(r);
-                }
-            });
+    console.log('Adding Session: ', req.params);
+    var script_id = new BSON.ObjectID(req.params.script)
+    var app_id = new BSON.ObjectID(req.params.id)
+    db.collection('apps').findOne({
+        _id: app_id
+    }, {
+        _id: 0,
+        name: 1
+    }, function (err, app) {
+        console.log("apps", err, app)
+        if (err || !app) {
+            res.status(404).send({
+                err: err || "No such app found"
+            })
+            return
         }
-    );
-
+        var doc = {
+            createdAt: new Date(),
+            script_id: script_id,
+            app_id:app_id
+        }
+        db.collection('sessions').insert(doc, function (err, result) {
+            if (err) {
+                res.send({
+                    err: err
+                });
+            } else {
+                console.log('Success: ' + JSON.stringify(result));
+                activeSession = result.ops[0]._id + ""
+                res.send(activeSession);
+            }
+        });
+    })
 }
 
 exports.deleteSession = function (req, res) {
@@ -445,33 +438,6 @@ exports.deactivateSession = function (req, res) {
         res.send({
             error: 'An error has occurred'
         });
-};
-
-exports.addSession = function (req, res) {
-    var session = req.body;
-    console.log('Adding Session: ' + JSON.stringify(session));
-    var doc = {
-        createdAt: new Date(),
-        name: session.name,
-        appName: session.appName,
-        appID: new BSON.ObjectID(session.appID),
-        deviceIp: session.deviceIp
-    }
-    db.collection('sessions', function (err, collection) {
-        collection.insert(doc, {
-            safe: true
-        }, function (err, result) {
-            if (err) {
-                res.send({
-                    error: 'An error has occurred'
-                });
-            } else {
-                console.log('Success: ' + JSON.stringify(result));
-                activeSession = result.ops[0]._id + ""
-                res.send(activeSession);
-            }
-        });
-    });
 };
 
 exports.getSessions = function (req, res) {
