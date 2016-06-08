@@ -9,7 +9,21 @@ var trimString = function(passedString, startstring, endstring) {
    return theString
 };
 %>
+<ul class="nav nav-tabs">
+    <li class="active"><a href="/geo/app.html">Apps</a></li>
+    <li><a href="/farms">Farms</a></li>
+</ul>
 <div class="container-fluid">
+    <br/>
+    <ol class="breadcrumb">
+        <li><a href="/geo/app.html">Apps</a></li>
+        <li><a href="/geo/app.html"><%=app.name%></a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script.html">Scripts</a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script.html"><%=script.name%></a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html">Sessions</a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html"><%=session.createdAt%></a></li>
+        <li class="active">Actions</li>
+    </ol>
     <div class="row">
         <div class="col-sm-12 col-md-12 main">
             <h1 class="page-header"><%=session.name%> - <%=session.appName%></h1>

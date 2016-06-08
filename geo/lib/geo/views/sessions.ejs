@@ -28,7 +28,6 @@
     }
 </script>
 <ul class="nav nav-tabs">
-    <li><a href="/geo">Sessions</a></li>
     <li class="active"><a href="/geo/app.html">Apps</a></li>
     <li><a href="/farms">Farms</a></li>
 </ul>
@@ -85,6 +84,7 @@
                                 <td><%=session.status%></td>
                                 <td><%=session.createdAt%></td>
                                 <td>
+                                    <a href='/geo/app/<%=session.app_id%>/script/<%=script_id%>/session/<%=session._id%>/action.html'>Results</a> | 
                                     <button onclick="return deleteSession('<%=session._id%>')">Delete</button>
                                 </td>
                             </tr>

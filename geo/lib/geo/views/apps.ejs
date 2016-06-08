@@ -42,7 +42,6 @@
     }
 </script>
 <ul class="nav nav-tabs">
-    <li><a href="/geo">Sessions</a></li>
     <li class="active"><a href="/geo/app.html">Apps</a></li>
     <li><a href="/farms">Farms</a></li>
 </ul>
@@ -87,20 +86,18 @@
                             <th>Platform</th>
                             <th>Status</th>
                             <th>Created At</th>
-                            <th>Scripts</th>
                             <th>...</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% apps.forEach(function(app) { %>
                             <tr>
-                                <td><a href="/geo/app/<%=app._id%>"><%=app.name%></a></td>
+                                <td><a href="#/geo/app/<%=app._id%>"><%=app.name%></a></td>
                                 <td><%= app.package %></td>
                                 <td><%= app.platform %></td>
                                 <td><%= app.status %></td>
                                 <td><%= app.createdAt %></td>
-                                <td><a href="/geo/app/<%=app._id%>/script.html">0</a></td>
-                                <td></td>
+                                <td><a href="/geo/app/<%=app._id%>/script.html">Scripts</a></td>
                             </tr>
                             <% }) %>
                     </tbody>

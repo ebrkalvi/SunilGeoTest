@@ -245,7 +245,7 @@ router.delete('/session', router.callbacks.deleteSession);
  *
  * @apiError The <code>error</code>field will have more diagnostic info/message.
  */
-router.get('/actions', router.callbacks.actions);
+router.get('/app/:id/script/:script/session/:session/action.html', router.callbacks.showActions);
 
 /**
  * @api {get} /:id GetAction

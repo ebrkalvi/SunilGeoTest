@@ -150,28 +150,17 @@ exports.deleteSession = function (req, res) {
 }
 
 exports.showScripts = function (req, res) {
-	console.log("-> scripts", req.params);
-	db.collection('apps').findOne({
-		_id: new BSON.ObjectID(req.params.id)
-	}, {
-		_id: 0,
-		name: 1
-	}, function (err, app) {
+	console.log("-> showScripts", req.params);
+	db.collection('apps').findOne({_id: new BSON.ObjectID(req.params.id)}, {_id: 0, name: 1 }, function (err, app) {
 		console.log("apps", err, app)
 		if (err || !app) {
-			res.status(404).send({
-				err: err || "No such app found"
-			})
+			res.status(404).send({err: err || "No such app found"})
 			return
 		}
-		db.collection('scripts').find({
-			app_id: new BSON.ObjectID(req.params.id)
-		}, {
-			app_id: 0
-		}).limit(50).sort({
-			'createdAt': -1
-		}).toArray(function (err, items) {
-			console.log("Scripts count=", items)
+		db.collection('scripts').find({app_id: new BSON.ObjectID(req.params.id)}, {app_id: 0})
+		.limit(50)
+		.sort({'createdAt': -1}).toArray(function (err, items) {
+			console.log("Scripts count=", items.length)
 			var template = __dirname + '/../views/scripts';
 			res.render(template, {
 				siteTitle: "Geo Testing",
@@ -484,66 +473,68 @@ var formatBytes = function (bytes) {
 
 function getActions(session_id, excludes, cb) {
 	console.log("getActions", session_id);
-	db.collection('actions', function (err, collection) {
-		collection.find({
-			sid: new BSON.ObjectID(session_id),
-			'request.host': {
-				$nin: excludes
-			}
-		}).limit(50).sort({
-			'request.timestamp_end': -1
-		}).toArray(function (err, items) {
+	db.collection('actions').find({sid: new BSON.ObjectID(session_id), 'request.host': {$nin: excludes}})
+		.limit(50).sort({'request.timestamp_end': -1})
+		.toArray(function (err, items) {
 			if (err)
 				cb(err, items)
-				else {
-					var _it = []
-					for (var i = 0; i < items.length; ++i) {
-						if (items[i].type != 'User')
-							_it.push({
-								type: items[i].type,
-								requested_at: items[i].request.timestamp_start,
-								action: items[i].action,
-								url: items[i].request.host + items[i].request.path,
-								request_time: timeDiff(items[i].request.timestamp_end, items[i].request.timestamp_start),
-								execution_time: timeDiff(items[i].response.timestamp_start, items[i].request.timestamp_end),
-								response_time: timeDiff(items[i].response.timestamp_end, items[i].response.timestamp_start),
-								total_time: timeDiff(items[i].response.timestamp_end, items[i].request.timestamp_start),
-								response_size: formatBytes(items[i].response.contentLength)
-							})
-							else
-								_it.push(items[i])
-					}
-					cb(err, _it)
+			else {
+				var _it = []
+				for (var i = 0; i < items.length; ++i) {
+					if (items[i].type != 'User')
+						_it.push({
+							type: items[i].type,
+							requested_at: items[i].request.timestamp_start,
+							action: items[i].action,
+							url: items[i].request.host + items[i].request.path,
+							request_time: timeDiff(items[i].request.timestamp_end, items[i].request.timestamp_start),
+							execution_time: timeDiff(items[i].response.timestamp_start, items[i].request.timestamp_end),
+							response_time: timeDiff(items[i].response.timestamp_end, items[i].response.timestamp_start),
+							total_time: timeDiff(items[i].response.timestamp_end, items[i].request.timestamp_start),
+							response_size: formatBytes(items[i].response.contentLength)
+						})
+					else
+						_it.push(items[i])
 				}
+				cb(err, _it)
+			}
 		});
-	});
 }
 
-exports.actions = function (req, res) {
-	db.collection('sessions').find({
-		_id: new BSON.ObjectID(req.query.sid)
-	}).toArray(function (err, session) {
-		if (err || session.length == 0) {
-			res.send({
-				error: "Session not Found"
-			})
+exports.showActions = function (req, res) {
+	console.log("-> showActions", req.params);
+	db.collection('apps').findOne({_id: new BSON.ObjectID(req.params.id)}, {_id: 0, name: 1 }, function (err, app) {
+		console.log("apps", err, app)
+		if (err || !app) {
+			res.status(404).send({err: err || "App not found"})
 			return
 		}
-
-		var excludes = ['metxms.citrix.com', /[^.\s]+\.apple\.com/g]
-		getActions(session[0]._id, excludes, function (err, items) {
-			console.log("actions count", items.length, req.query.out);
-			if (req.query.out == 'html') {
-				var template = __dirname + '/../views/actions';
-				res.render(template, {
-					siteTitle: "Geo Testing - " + session[0].name,
-					session: session[0],
-					excludes: excludes,
-					actions: items
+		db.collection('scripts').findOne({_id: new BSON.ObjectID(req.params.script)}, {_id: 0, name: 1 }, function (err, script) {
+			console.log("scripts", err, script)
+			if (err || !script) {
+				res.status(404).send({err: err || "Script not found"})
+				return
+			}
+			db.collection('sessions').findOne({_id: new BSON.ObjectID(req.params.session)}, function (err, session) {
+				if (err || !session) {
+					res.send({err: err || "Session not Found"})
+					return
+				}
+				var excludes = ['metxms.citrix.com', /[^.\s]+\.apple\.com/g]
+				getActions(session._id, excludes, function (err, items) {
+					console.log("actions count", items.length, session);
+					var template = __dirname + '/../views/actions';
+					res.render(template, {
+						siteTitle: "Geo Testing - " + script.name,
+						app: app,
+						script: script,
+						session: session,
+						excludes: excludes,
+						actions: items
+					})
 				})
-			} else
-				res.json(items)
-		})
+			});
+		});
 	});
 
 
