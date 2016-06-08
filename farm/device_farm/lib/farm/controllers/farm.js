@@ -1,5 +1,6 @@
 var exports = module.exports;
 var fs = require('fs');
+var exec = require('child_process').exec;
 var request = require('request');
 var bson = require('bson');
 var IDeviceManager = require('../models/idevicemanager');
@@ -69,7 +70,19 @@ function downloadScript(script_id, path, cb) {
 	})
 }
 
-function runSesssion(session) {
+function runSesssion(session, udid) {
+	var cmd = 'script="../'+session.script_path+'" SID='+session._id+' DEVICE_UDID='+udid+' APP_BUNDLE="'+session.app_path+'" ant -f AppiumTests/build.xml ios'
+	console.log("Executing", cmd)
+	var child = exec(cmd);
+	child.stdout.on('data', function(data) {
+	    console.log('stdout: ' + data);
+	});
+	child.stderr.on('data', function(data) {
+	    console.log('stdout: ' + data);
+	});
+	child.on('close', function(code) {
+	    console.log('closing code: ' + code);
+	});
 
 }
 
@@ -88,7 +101,7 @@ function processSessions() {
 					session.script_path = script_path
 					console.log('-> downloadScript', session.script_path)
 					session.status = 'READY'
-					runSesssion(session)
+					runSesssion(session, 'e3387b814411f2343ecbbfa250ec74514c0b2c9c')
 				})
 			})
 		}
@@ -111,6 +124,7 @@ var activeSession
 function insertEvent(geo, res) {
 	geo.sid = new BSON.ObjectID(activeSession)
 	geo.action = currentAction
+	geo.createdAt = new Date()
 	geo.type = geo.type ? geo.type : 'Network'
 		console.log('Adding geo: ' + JSON.stringify(geo));
 	db.collection('actions').insert(geo, function (err, result) {

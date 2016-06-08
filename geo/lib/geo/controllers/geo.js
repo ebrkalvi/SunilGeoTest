@@ -474,7 +474,7 @@ var formatBytes = function (bytes) {
 function getActions(session_id, excludes, cb) {
 	console.log("getActions", session_id);
 	db.collection('actions').find({sid: new BSON.ObjectID(session_id), 'request.host': {$nin: excludes}})
-		.limit(50).sort({'request.timestamp_end': -1})
+		.limit(50).sort({'createdAt': -1})
 		.toArray(function (err, items) {
 			if (err)
 				cb(err, items)

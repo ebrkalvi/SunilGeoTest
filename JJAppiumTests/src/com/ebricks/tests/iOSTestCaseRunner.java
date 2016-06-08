@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -49,7 +48,7 @@ public class iOSTestCaseRunner {
     }
     
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         try {
             geoTestingClient = new GeoTestingClient();
             String udid = System.getenv("DEVICE_UDID");
@@ -74,7 +73,7 @@ public class iOSTestCaseRunner {
             else
             	app = new File(APP_PATH);
 
-            capabilities.setCapability("app", app.getAbsolutePath());
+            capabilities.setCapability("app", app.getCanonicalPath());
             //capabilities.setCapability("app", "com.ebricks.JambaJuice");// analysedApp.getAbsolutePath());
             
             capabilities.setJavascriptEnabled(true);
