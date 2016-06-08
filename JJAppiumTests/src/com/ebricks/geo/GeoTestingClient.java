@@ -11,13 +11,13 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 public class GeoTestingClient {
-    static final String SERVER_ADDRESS = "http://52.9.101.199:3000";
+    static final String SERVER_ADDRESS = "http://127.0.0.1:3030";
     //static final String SERVER_ADDRESS = "http://localhost:3000";
     
     public GeoTestingClient() {
         
     }
-    
+    /*
     public String createSession(String name, String appName, String deviceIp) {
         JsonObject sessionObject = Json.createObjectBuilder()
         .add("name", name)
@@ -25,27 +25,27 @@ public class GeoTestingClient {
         .add("deviceIp", deviceIp)
         .build();
         return doPOSTApiCall("/geo/session", sessionObject.toString());
-    }
+    }*/
     
     public void activateSession(String sid) {
         JsonObject sessionObject = Json.createObjectBuilder()
         .add("sid", sid)
         .build();
-        doPOSTApiCall("/geo/session/activate", sessionObject.toString());
+        doPOSTApiCall("/farm/geo/activateSession", sessionObject.toString());
     }
     
     public void deactivateSession(String sid) {
         JsonObject sessionObject = Json.createObjectBuilder()
         .add("sid", sid)
         .build();
-        doPOSTApiCall("/geo/session/deactivate", sessionObject.toString());
+        doPOSTApiCall("/farm/geo/deactivateSession", sessionObject.toString());
     }
 
     public void setCurrentAction(String action) {
         JsonObject sessionObject = Json.createObjectBuilder()
         .add("action", action)
         .build();
-        doPOSTApiCall("/geo/session/currentAction", sessionObject.toString());
+        doPOSTApiCall("/farm/geo/currentAction", sessionObject.toString());
     }
     
     String doPOSTApiCall(String path, String jsonInput) {

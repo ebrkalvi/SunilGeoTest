@@ -2,14 +2,17 @@ require('app-module-path').addPath(__dirname + '/lib');
 var nconf = require('nconf');
 var uuid = require('node-uuid');
 var request = require('request');
+var bodyParser = require('body-parser');
+var mongoUtil = require('./lib/common/mongoUtil');
 
 exports.setup = function (runningApp, callback) {
     // Nothing ever comes from "x-powered-by", but a security hole
     runningApp.disable("x-powered-by");
+    
+    runningApp.use(bodyParser.urlencoded({extended: true}));
+    runningApp.use(bodyParser.json());
 
-    nconf.use('file', {
-        file: './.config.json'
-    });
+    nconf.use('file', {file: './.config.json'});
     nconf.load();
 
     global.my_id = nconf.get('my_id')
@@ -49,7 +52,10 @@ exports.setup = function (runningApp, callback) {
                         }
                         console.log('Password saved successfully.', nconf.get('pwd'));
                         global.my_pwd = nconf.get('pwd')
-                        runningApp.use('/farm', require('farm'));
+                        mongoUtil.connectToServer(function (err, _db) {
+                            console.log("-> connectToServer mongodb")
+                            runningApp.use('/farm', require('farm'));
+                        });
                     });
                 } else {
                     console.error("Failed registering", error)
@@ -57,7 +63,10 @@ exports.setup = function (runningApp, callback) {
             }
         );
     } else {
-        runningApp.use('/farm', require('farm'));
+        mongoUtil.connectToServer(function (err, _db) {
+            console.log("-> connectToServer mongodb")
+            runningApp.use('/farm', require('farm'));
+        });
     }
 
 

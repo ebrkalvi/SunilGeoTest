@@ -52,7 +52,11 @@ public class iOSTestCaseRunner {
     public void setUp() {
         try {
             geoTestingClient = new GeoTestingClient();
-            currentSID = geoTestingClient.createSession("Appium iOS Testcases", "com.ebricks.JambaJuice - Jamba Juice 1283-bugs/JMBAIO-1620", findPublicIP());
+            String udid = System.getenv("DEVICE_UDID");
+            String appBundle = System.getenv("APP_BUNDLE");
+            String sid = System.getenv("SID");
+            System.out.println("udid:"+udid+", appBundle:"+appBundle+", sid:"+sid);
+            currentSID = sid;//geoTestingClient.createSession("Appium iOS Testcases", "com.ebricks.JambaJuice - Jamba Juice 1283-bugs/JMBAIO-1620", findPublicIP());
             geoTestingClient.activateSession(currentSID);
 
             geoTestingClient.setCurrentAction("Starting Up..");
@@ -61,17 +65,24 @@ public class iOSTestCaseRunner {
             capabilities.setCapability("appium-version", "1.0");
             capabilities.setCapability("platformName", "iOS");
             capabilities.setCapability("platformVersion", "9.3.1");
-            capabilities.setCapability("deviceName", "iPad 2");
-            //File app = new File(APP_PATH);
-            //File analysedApp = analyseFile(app);
-            capabilities.setCapability("app", "com.ebricks.JambaJuice");// analysedApp.getAbsolutePath());
+            capabilities.setCapability("deviceName", "iOS device");
+            if(udid != null && !udid.isEmpty())
+            	capabilities.setCapability("udid", udid);
+            File app = null;
+            if(appBundle != null && !appBundle.isEmpty())
+            	app = new File(appBundle);
+            else
+            	app = new File(APP_PATH);
+
+            capabilities.setCapability("app", app.getAbsolutePath());
+            //capabilities.setCapability("app", "com.ebricks.JambaJuice");// analysedApp.getAbsolutePath());
             
             capabilities.setJavascriptEnabled(true);
             capabilities.setCapability(MobileCapabilityType.HAS_TOUCHSCREEN, true);
             capabilities.setCapability(MobileCapabilityType.HAS_NATIVE_EVENTS, true);
             
             driver = new IOSDriver<WebElement>(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
-            driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+            //driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

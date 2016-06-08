@@ -8,6 +8,11 @@ module.exports = router;
 router.callbacks = require('./controllers/farm');
 router.models = require('./models');
 
+router.post('/geo', router.callbacks.addGeo);
+router.post('/geo/activateSession', router.callbacks.activateSession);
+router.post('/geo/deactivateSession', router.callbacks.deactivateSession);
+router.post('/geo/currentAction', router.callbacks.setCurrentAction);
+
 router.get('/device', router.callbacks.getDevices);
 router.get('/device/:id', router.callbacks.getDeviceInfo);
 
@@ -58,6 +63,12 @@ function ws_message(data, flags) {
                 req.body = info
                 sendResponse(req)
             })
+        } else if (req.subject == 'session') {
+            router.callbacks.performSession(req.body, function (err, info) {
+                req.err = err
+                req.body = info
+                sendResponse(req)
+            })
         } else {
             req.body = {
                 error: 'Unkown Request'
@@ -70,8 +81,8 @@ function ws_message(data, flags) {
 }
 
 var connect = function () {
-    var SERVER = 'ws://52.9.101.199:8080/'
-    //var SERVER = 'ws://localhost:8080/'
+    //var SERVER = 'ws://52.9.101.199:8080/'
+    var SERVER = 'ws://localhost:8080/'
     console.log('-> Connecting')
     ws = new WebSocket(SERVER);
     ws.on('open', ws_open);

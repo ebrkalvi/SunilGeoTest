@@ -48,6 +48,8 @@ router.get('/app', router.callbacks.getApps);
  */
 router.get('/app/:id', router.callbacks.getApp);
 
+router.get('/app/:id/bundle', router.callbacks.getAppBundle);
+
 router.get('/app/:id/script.html', router.callbacks.showScripts);
 
 router.get('/app/:id/script', router.callbacks.getScripts);
@@ -55,6 +57,8 @@ router.get('/app/:id/script', router.callbacks.getScripts);
 router.post('/app/:id/script', router.callbacks.addScript);
 
 router.put('/script/:script', router.callbacks.updateScript);
+
+router.get('/script/:script/bundle', router.callbacks.getScriptBundle);
 
 router.delete('/script/:script', router.callbacks.deleteScript);
 

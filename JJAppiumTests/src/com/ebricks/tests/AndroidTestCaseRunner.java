@@ -43,7 +43,7 @@ public class AndroidTestCaseRunner {
     @Before
     public void setUp() {
     	geoTestingClient = new GeoTestingClient();
-        currentSID = geoTestingClient.createSession("Appium Android Testcases", "com.olo.jambajuice", findPublicIP());
+        currentSID = null;//geoTestingClient.createSession("Appium Android Testcases", "com.olo.jambajuice", findPublicIP());
         geoTestingClient.activateSession(currentSID);
 
         geoTestingClient.setCurrentAction("Starting Up..");

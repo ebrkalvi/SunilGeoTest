@@ -123,10 +123,29 @@ exports.notifyNewFarm = function (uid) {
             newUser: number
         }
         for (var i = 0; i < items.length; i++) {
-            var client = connections[items[i].phone];
+            var client = connections[items[i].uid];
             if (client)
                 client.send(JSON.stringify(res));
         }
+    });
+}
+
+exports.processPendingSessions = function() {
+    db.collection('sessions').find({status: 'CREATED'}, {app_id: 1, script_id:1}).toArray(function (err, sessions) {
+        console.log('processPendingSessions', err, sessions)
+        for (var uid in connections) {
+            var client = connections[uid];
+            sendRequest(client, 'session', sessions, function(res) {
+                console.log('Sessions submitted to', uid, res)
+            })
+        }
+    });
+}
+
+exports.notifyNewSession = function (sid) {
+    db.collection('sessions').findOne({_id: sid}, {app_id: 1, script_id:1, _id: 0 }, function (err, session) {
+        console.log('notifyNewSession', err, session)
+        exports.processPendingSessions()
     });
 }
 
@@ -152,14 +171,7 @@ wss.on('connection', function connection(client) {
             };
             if (req.subject == 'login') {
                 var login = req.body
-                db.collection('farms').findOne({
-                    uid: login.uid,
-                    pwd: login.pwd
-                }, {
-                    pwd: 0,
-                    _id: 0,
-                    uid: 0
-                }, function (err, farm) {
+                db.collection('farms').findOne({uid: login.uid, pwd: login.pwd}, {pwd: 0, _id: 0, uid: 0}, function (err, farm) {
                     console.log('farms.count: ', err, farm, login);
                     if (!err && farm.ip) {
                         res.status = 0
