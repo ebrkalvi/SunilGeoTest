@@ -1,0 +1,117 @@
+<%
+var formatTS = function(ts) {
+    var format = new Date(ts*1000);
+    return format.toISOString();
+}
+
+var trimString = function(passedString, startstring, endstring) {
+   var theString = passedString.substring(0, 80);
+   return theString
+};
+%>
+<style>
+pre {
+    height: auto;
+    max-height: 500px;
+    overflow: auto;
+    background-color: #eeeeee;
+    word-break: normal !important;
+    word-wrap: normal !important;
+    white-space: pre !important;
+}
+
+.modal .modal-dialog { width: 90% }
+</style>
+<script>
+    function showLog(job_id) {
+        doApiCall('/geo/job/'+job_id+'/log', {});
+        $('#myLog').modal('show'); 
+        return false;
+    }
+
+    function doApiCall(path, _data) {
+        var logPre = $('#logPre');
+        logPre.html("Please wait...");
+        $.ajax({
+            type: "GET",
+            url: path,
+            dateType: 'json',
+            data: _data,
+            success: function (data, textStatus, jqXHR) {
+                logPre.html(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                logPre.html(textStatus + ":" + errorThrown);
+            },
+            complete: function () {
+                logPre.show()
+            }
+        });
+    }
+</script>
+<ul class="nav nav-tabs">
+    <li class="active"><a href="/geo/app.html">Apps</a></li>
+    <li><a href="/farms">Farms</a></li>
+</ul>
+<div class="container-fluid">
+    <br/>
+    <ol class="breadcrumb">
+        <li><a href="/geo/app.html">Apps</a></li>
+        <li><a href="/geo/app.html"><%=app.name%></a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script.html">Scripts</a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script.html"><%=script.name%></a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html">Sessions</a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html"><%=session.createdAt%></a></li>
+        <li class="active">Actions</li>
+    </ol>
+    <!-- Modal -->
+    <div class="modal fade" id="myLog" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Test Log</h4>
+                </div>
+                <div class="modal-body">
+                    <pre id="logPre">
+                    </pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Message</th>
+                            <th>Created At</th>
+                            <th>...</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%jobs.forEach(function(job){ %>
+                        <tr>
+                                <td><%=job.status%></td>
+                                <td><%=job.message%></td>
+                                <td><%=job.createdAt%></td>
+                                <td>
+                                    <a href='#' onclick="return showLog('<%=job._id%>')">View log</a> | 
+                                    <button onclick="return deleteSession('<%=session._id%>')">Re Do</button>
+                                </td>
+                            </tr>
+                            <% });%>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

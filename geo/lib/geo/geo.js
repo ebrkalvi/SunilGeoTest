@@ -7,7 +7,7 @@ router.callbacks = require('./controllers/geo');
 router.models = require('./models');
 
 
-router.get('/', router.callbacks.sessions);
+router.get('/', router.callbacks.showApps);
 router.get('/app.html', router.callbacks.showApps);
 
 /**
@@ -69,6 +69,10 @@ router.get('/app/:id/script/:script/session', router.callbacks.getSessions);
 router.post('/app/:id/script/:script/session', router.callbacks.addSession);
 
 router.delete('/session/:session', router.callbacks.deleteSession);
+
+router.get('/app/:id/script/:script/session/:session/job.html', router.callbacks.showJobs);
+
+router.get('/job/:job/log', router.callbacks.getJobLog);
 
 /**
  * @api {post} /app AddApp

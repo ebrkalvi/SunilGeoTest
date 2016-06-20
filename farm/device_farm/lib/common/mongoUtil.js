@@ -10,11 +10,7 @@ module.exports = {
             //db.createCollection('farms');
             db.collection('farms').count(function (err, count) {
                 console.log("The 'farms' collection...", count);
-                db.collection('farms').createIndex({
-                    "uid": 1
-                }, {
-                    unique: true
-                })
+                db.collection('farms').createIndex({"uid": 1}, {unique: true})
             })
             db.collection('actions').count(function (err, count) {
                 console.log("The 'actions' collection...", err, count);
@@ -22,6 +18,10 @@ module.exports = {
             db.collection('sessions').count(function (err, count) {
                 console.log("The 'sessions' collection...", err, count);
             });
+            db.collection('jobs').count(function (err, count) {
+                console.log("The 'jobs' collection...", count);
+                db.collection('jobs').createIndex({"farm_id":1, "session_id": 1}, {unique: true})
+            })
             return callback(err, db);
         });
     },

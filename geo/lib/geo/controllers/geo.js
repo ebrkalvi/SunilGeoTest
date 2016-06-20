@@ -41,11 +41,7 @@ function parseIPA(path, app_id) {
 				package: data['metadata']['CFBundleIdentifier']
 		}
 		console.log(app_info.name, app_info.package);
-		db.collection('apps').update({
-			'_id': new BSON.ObjectID(app_id)
-		}, {
-			$set: app_info
-		}, function (err, result) {
+		db.collection('apps').update({'_id': new BSON.ObjectID(app_id)}, {$set: app_info}, function (err, result) {
 			if (err) {
 				console.log(err)
 			} else {
@@ -76,6 +72,52 @@ function parseAPK(path, app_id) {
 				console.log('parseAPK Success: ' + JSON.stringify(result));
 			}
 		});
+	});
+}
+
+exports.showJobs = function (req, res) {
+	console.log("-> showJobs", req.params);
+	db.collection('apps').findOne({_id: new BSON.ObjectID(req.params.id)}, {_id: 0, name: 1 }, function (err, app) {
+		console.log("apps", err, app)
+		if (err || !app) {
+			res.status(404).send({err: err || "App not found"})
+			return
+		}
+		db.collection('scripts').findOne({_id: new BSON.ObjectID(req.params.script)}, {_id: 0, name: 1 }, function (err, script) {
+			console.log("scripts", err, script)
+			if (err || !script) {
+				res.status(404).send({err: err || "Script not found"})
+				return
+			}
+			db.collection('sessions').findOne({_id: new BSON.ObjectID(req.params.session)}, function (err, session) {
+				if (err || !session) {
+					res.send({err: err || "Session not Found"})
+					return
+				}
+				db.collection('jobs').find({session_id: new BSON.ObjectID(req.params.session), app_id: new BSON.ObjectID(req.params.id)})
+					.limit(50).sort({'createdAt': -1}).toArray(function (err, jobs) {
+						console.log("Jobs", jobs.length)
+						var template = __dirname + '/../views/jobs';
+						res.render(template, {
+							siteTitle: "Geo Testing",
+							app: app,
+							script: script,
+							session: session,
+							jobs: jobs
+						})
+					});
+			});
+		});
+	});
+
+};
+
+exports.getJobLog = function(req, res) {
+	db.collection('jobs').findOne({_id: new BSON.ObjectID(req.params.job)}, {log: 1, _id: 0}, function (err, job) {
+		if(err)
+			res.json({err: err})
+		else
+			res.send(job.log)
 	});
 }
 

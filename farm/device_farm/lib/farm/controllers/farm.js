@@ -1,10 +1,8 @@
 var exports = module.exports;
-var fs = require('fs');
-var exec = require('child_process').exec;
-var request = require('request');
 var bson = require('bson');
 var IDeviceManager = require('../models/idevicemanager');
 var BSON = bson.BSONPure.BSON
+var jobs = require('./jobs.js')
 var db = require('../../common/mongoUtil.js').getDb()
 
 var deviceManager = new IDeviceManager()
@@ -23,99 +21,14 @@ exports.getDeviceInfo = function (udid, cb) {
     })
 };
 
-var sessions = {}
-function downloadApp(app_id, path, cb) {
-	if (!fs.existsSync(path)){
-		fs.mkdirSync(path);
-	}
-	request({uri: 'http://localhost:3000/geo/app/'+app_id+'/bundle'})
-	.on('response', function(response) {
-		console.log(response.statusCode)
-		console.log(response.headers['content-disposition'])
-		var regexp = /filename=\"(.*)\"/gi;
-        var filename = regexp.exec( response.headers['content-disposition'] )[1];
-        if(filename) {
-	        var fws = fs.createWriteStream( path + filename );
-	        response.pipe( fws );
-	        response.on( 'end', function() {
-				cb(path + filename);
-	        });
-	    }
-	})
-	.on('error', function(err) {
-		console.log(err)
-	})
-}
-
-function downloadScript(script_id, path, cb) {
-	if (!fs.existsSync(path)){
-		fs.mkdirSync(path);
-	}
-	request({uri: 'http://localhost:3000/geo/script/'+script_id+'/bundle'})
-	.on('response', function(response) {
-		console.log(response.statusCode)
-		console.log(response.headers['content-disposition']);
-		var regexp = /filename=\"(.*)\"/gi;
-        var filename = regexp.exec( response.headers['content-disposition'] )[1];
-        if(filename) {
-	        var fws = fs.createWriteStream( path + filename );
-	        response.pipe( fws );
-	        response.on( 'end', function() {
-				cb(path + filename);
-	        });
-	    }
-	})
-	.on('error', function(err) {
-		console.log(err)
-	})
-}
-
-function runSesssion(session, udid) {
-	var cmd = 'script="../'+session.script_path+'" SID='+session._id+' DEVICE_UDID='+udid+' APP_BUNDLE="'+session.app_path+'" ant -f AppiumTests/build.xml ios'
-	console.log("Executing", cmd)
-	var child = exec(cmd);
-	child.stdout.on('data', function(data) {
-	    console.log('stdout: ' + data);
-	});
-	child.stderr.on('data', function(data) {
-	    console.log('stdout: ' + data);
-	});
-	child.on('close', function(code) {
-	    console.log('closing code: ' + code);
-	});
-
-}
-
-function processSessions() {
-	for(sid in sessions) {
-		var session = sessions[sid]
-		if(session.status == 'CREATED') {
-			console.log('-> processSession', session)
-			session.status = 'DOWNLOADING'
-			var path = 'tmp/'+session.app_id+'/'
-			downloadApp(session.app_id, path, function(app_path) {
-				session.app_path = app_path
-				console.log('-> downloadApp', session.app_path)
-				path += session.script_id + '/'
-				downloadScript(session.script_id, path, function(script_path) {
-					session.script_path = script_path
-					console.log('-> downloadScript', session.script_path)
-					session.status = 'READY'
-					runSesssion(session, 'e3387b814411f2343ecbbfa250ec74514c0b2c9c')
-				})
-			})
-		}
-	}
-}
-
 exports.performSession = function (session, cb) {
-    console.log("-> performSession", session)
-    for(var i = 0; i < session.length; ++i) {
+    /*for(var i = 0; i < session.length; ++i) {
 	    if(!session[i].status)
 	    	session[i].status = 'CREATED'
     	sessions[session._id] = session[i]
-	}
-    processSessions()
+	}*/
+	jobs.submitJob(session)
+    //processSessions()
     cb(null, {res: 'Submitted'})
 };
 

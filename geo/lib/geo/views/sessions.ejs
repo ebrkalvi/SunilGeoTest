@@ -84,6 +84,7 @@
                                 <td><%=session.status%></td>
                                 <td><%=session.createdAt%></td>
                                 <td>
+                                    <a href='/geo/app/<%=session.app_id%>/script/<%=script_id%>/session/<%=session._id%>/job.html'>Jobs</a> |
                                     <a href='/geo/app/<%=session.app_id%>/script/<%=script_id%>/session/<%=session._id%>/action.html'>Results</a> | 
                                     <button onclick="return deleteSession('<%=session._id%>')">Delete</button>
                                 </td>
