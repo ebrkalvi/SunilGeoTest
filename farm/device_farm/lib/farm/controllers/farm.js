@@ -1,11 +1,9 @@
 var exports = module.exports;
 var bson = require('bson');
-var IDeviceManager = require('../models/idevicemanager');
 var BSON = bson.BSONPure.BSON
 var jobs = require('./jobs.js')
 var db = require('../../common/mongoUtil.js').getDb()
 
-var deviceManager = new IDeviceManager()
 exports.getDevices = function (cb) {
     deviceManager.list(function (err, devices) {
         console.log("-> getDevices", err, devices)
@@ -22,13 +20,7 @@ exports.getDeviceInfo = function (udid, cb) {
 };
 
 exports.performSession = function (session, cb) {
-    /*for(var i = 0; i < session.length; ++i) {
-	    if(!session[i].status)
-	    	session[i].status = 'CREATED'
-    	sessions[session._id] = session[i]
-	}*/
 	jobs.submitJob(session)
-    //processSessions()
     cb(null, {res: 'Submitted'})
 };
 

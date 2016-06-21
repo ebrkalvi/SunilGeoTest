@@ -81,10 +81,8 @@ function ws_message(data, flags) {
 }
 
 var connect = function () {
-    //var SERVER = 'ws://52.9.101.199:8080/'
-    var SERVER = 'ws://localhost:8080/'
     console.log('-> Connecting')
-    ws = new WebSocket(SERVER);
+    ws = new WebSocket(WS_SERVER);
     ws.on('open', ws_open);
     ws.on('message', ws_message);
     ws.on('error', function () {

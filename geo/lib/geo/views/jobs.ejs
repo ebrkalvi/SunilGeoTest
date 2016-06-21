@@ -90,6 +90,7 @@ pre {
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th>Farm ID</th>
                             <th>Status</th>
                             <th>Message</th>
                             <th>Created At</th>
@@ -99,15 +100,16 @@ pre {
                     <tbody>
                         <%jobs.forEach(function(job){ %>
                         <tr>
-                                <td><%=job.status%></td>
-                                <td><%=job.message%></td>
-                                <td><%=job.createdAt%></td>
-                                <td>
-                                    <a href='#' onclick="return showLog('<%=job._id%>')">View log</a> | 
-                                    <button onclick="return deleteSession('<%=session._id%>')">Re Do</button>
-                                </td>
-                            </tr>
-                            <% });%>
+                            <td><%=job.farm_id%></td>
+                            <td><%=job.status%></td>
+                            <td><%=job.message%></td>
+                            <td><%=job.createdAt%></td>
+                            <td>
+                                <a href='#' onclick="return showLog('<%=job._id%>')">View log</a> | 
+                                <button onclick="return deleteSession('<%=session._id%>')">Re Do</button>
+                            </td>
+                        </tr>
+                        <% });%>
                     </tbody>
                 </table>
             </div>

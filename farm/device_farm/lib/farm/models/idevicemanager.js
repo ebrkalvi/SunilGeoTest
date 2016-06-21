@@ -26,6 +26,12 @@ IDeviceManager.prototype.getDevice = function (udid) {
     return new IDevice(udid)
 };
 
+IDeviceManager.prototype.getMatchingDevice = function (cb) {
+    this.list(function(devices) {
+        cb((devices && devices.length) ? devices[0].udid : null)
+    })
+};
+
 module.exports = function (udid, opts) {
     return new IDeviceManager(udid, opts);
 };
