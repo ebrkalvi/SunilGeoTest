@@ -121,7 +121,7 @@ function processSessions() {
 		updateJob(job._id, {message: 'Downloading App...'})
 		var path = 'tmp/'+job.app_id+'/'
 		downloadApp(job.app_id, path, function(app_path) {
-			updateJob(job._id, {app_path: app_path, message: 'Downloading Script...'}})
+			updateJob(job._id, {app_path: app_path, message: 'Downloading Script...'})
 			console.log('-> downloadApp', job.app_path)
 			path += job.script_id + '/'
 			downloadScript(job.script_id, path, function(script_path) {
