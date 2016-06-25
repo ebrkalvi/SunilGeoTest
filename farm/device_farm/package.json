@@ -26,7 +26,8 @@
     "nodebootstrap-server": "*",
     "yaml": "*",
     "mongodb": "*",
-    "nconf": "*"
+    "nconf": "*",
+    "ws": "*"
   },
   "devDependencies": {
     "after": "^0.8.1",
@@ -40,8 +41,8 @@
     "supertest": "^1.2.0"
   },
   "scripts": {
-    "start": "./bin/start.sh",
-    "dev": "./bin/dev_start.sh",
+    "start": "npm install forever -g && ./bin/start.sh",
+    "dev": "npm install supervisor -g && ./bin/dev_start.sh",
     "docker-start": "docker-compose run -d -p 3000 app node server.js",
     "docker-build": "docker-compose build --force-rm --no-cache --pull",
     "docker-dev": "docker-compose up -d",

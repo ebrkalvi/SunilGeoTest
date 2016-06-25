@@ -348,7 +348,7 @@ exports.addApp = function (req, res) {
 	var app = req.body;
 	console.log('Adding App: ', req.files);
 	var date_now = new Date()
-	var serverPath = 'uploads/apps/' + date_now.getTime() + req.files.file.name;
+	var serverPath = __dirname + '/uploads/apps/' + date_now.getTime() + req.files.file.name;
 
 	require('fs').rename(
 			req.files.file.path,
@@ -356,9 +356,7 @@ exports.addApp = function (req, res) {
 			function (err) {
 				if (err) {
 					console.log(err)
-					res.send({
-						error: 'Error uploading app'
-					});
+					res.send({error: 'Error uploading app'});
 					return;
 				}
 				console.log('Upload Success: ' + serverPath);
