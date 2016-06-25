@@ -28,6 +28,7 @@
             success: function (data) {
                 $("#files").children().last().remove();
                 $("#uploadFile").closest("form").trigger("reset");
+                location.reload()
             },
             error: function () {
                 $("#fileUploadError").removeClass("hide").text("An error occured!");

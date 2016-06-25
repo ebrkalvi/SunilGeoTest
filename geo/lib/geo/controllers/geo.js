@@ -348,7 +348,7 @@ exports.addApp = function (req, res) {
 	var app = req.body;
 	console.log('Adding App: ', req.files);
 	var date_now = new Date()
-	var serverPath = __dirname + '/uploads/apps/' + date_now.getTime() + req.files.file.name;
+	var serverPath = 'uploads/apps/' + date_now.getTime() + req.files.file.name;
 
 	require('fs').rename(
 			req.files.file.path,
