@@ -62,7 +62,7 @@ exports.setup = function (runningApp, callback) {
                         });
                     });
                 } else {
-                    console.error("Failed registering", error)
+                    console.error("Failed registering", error, response)
                 }
             }
         );

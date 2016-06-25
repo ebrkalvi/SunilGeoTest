@@ -25,7 +25,8 @@
     "nodebootstrap-htmlapp": "*",
     "nodebootstrap-server": "*",
     "yaml": "*",
-    "mongodb": "*"
+    "mongodb": "*",
+    "nconf": "*"
   },
   "devDependencies": {
     "after": "^0.8.1",
