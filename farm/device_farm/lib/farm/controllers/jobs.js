@@ -8,6 +8,7 @@ var BSON = bson.BSONPure.BSON
 var db = require('../../common/mongoUtil.js').getDb()
 
 var deviceManager = new IDeviceManager()
+var currentJob
 
 function updateJobStatus(job_id, status, cb) {
 	db.collection('jobs').update({_id: job_id}, {$set: {status: status}}, function (err, result) {
@@ -90,6 +91,7 @@ function runSesssion(job, udid) {
 		var message = code == 0 ? "Test successful" : "Tests are failing. Check logs"
 		updateJob(job._id, {log: log, message: message, status: 'FINISHED'});
 	    console.log('closing code: ' + code);
+	    currentJob = undefined
 	    processSessions()
 	});
 
@@ -99,11 +101,13 @@ function performSession() {
 	db.collection('jobs').findOne({farm_id:my_id, status:'READY'}, {log: 0}, function(err, job) {
 		console.log('performSession', err, job)
 		if(job) {
+			currentJob = job._id
 			deviceManager.getMatchingDevice(function(udid) {
 				if(udid)
 					runSesssion(job, udid)
 				else {
 					updateJob(job._id, {message: "No matching device found to run the script", status: 'FINISHED'});
+					currentJob = undefined
 					processSessions()
 				}
 			})
@@ -112,6 +116,10 @@ function performSession() {
 }
 
 function processSessions() {
+	if(currentJob) {
+		console.log('<- processSessions', currentJob)
+		return
+	}
 	db.collection('jobs').findOne({farm_id:my_id, status:'CREATED'}, function(err, job) {
 		console.log('-> processSession', job)
 		if(!job || !job.session_id) {
