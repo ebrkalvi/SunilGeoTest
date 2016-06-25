@@ -27,7 +27,8 @@ IDeviceManager.prototype.getDevice = function (udid) {
 };
 
 IDeviceManager.prototype.getMatchingDevice = function (cb) {
-    this.list(function(devices) {
+    this.list(function(err, devices) {
+        console.log('-> getMatchingDevice', devices)
         cb((devices && devices.length) ? devices[0].udid : null)
     })
 };

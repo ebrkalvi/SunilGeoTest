@@ -9,17 +9,17 @@ var db = require('../../common/mongoUtil.js').getDb()
 
 var deviceManager = new IDeviceManager()
 
-function updateJobStatus(session_id, status, cb) {
-	db.collection('jobs').update({farm_id: my_id, session_id: new BSON.ObjectID(session_id)}, {$set: {status: status}}, function (err, result) {
-		console.log('Updated status', err, session_id, status)
+function updateJobStatus(job_id, status, cb) {
+	db.collection('jobs').update({_id: job_id}, {$set: {status: status}}, function (err, result) {
+		console.log('Updated status', err, job_id, status)
 		if(cb)
 			cb()
 	})
 }
 
-function updateJob(session_id, params, cb) {
-	db.collection('jobs').update({farm_id: my_id, session_id: new BSON.ObjectID(session_id)}, {$set: params}, function (err, result) {
-		console.log('updateJob', err, session_id, params)
+function updateJob(job_id, params, cb) {
+	db.collection('jobs').update({_id: job_id}, {$set: params}, function (err, result) {
+		console.log('updateJob', err, job_id, params)
 		if(cb)
 			cb()
 	})
@@ -74,10 +74,10 @@ function downloadScript(script_id, path, cb) {
 	})
 }
 
-function runSesssion(session, udid) {
-	var cmd = 'script="../'+session.script_path+'" SID='+session.session_id+' DEVICE_UDID='+udid+' APP_BUNDLE="'+session.app_path+'" ant -f AppiumTests/build.xml ios'
+function runSesssion(job, udid) {
+	var cmd = 'script="../'+job.script_path+'" JID='+job._id+' DEVICE_UDID='+udid+' APP_BUNDLE="'+job.app_path+'" ant -f AppiumTests/build.xml ios'
 	console.log("Executing", cmd)
-	updateJobStatus(session.session_id, 'RUNNING');
+	updateJobStatus(job._id, 'RUNNING');
 	var child = exec(cmd);
 	var log = ''
 	child.stdout.on('data', function(data) {
@@ -88,43 +88,46 @@ function runSesssion(session, udid) {
 	});
 	child.on('close', function(code) {
 		var message = code == 0 ? "Test successful" : "Tests are failing. Check logs"
-		updateJob(session.session_id, {log: log, message: message, status: 'FINISHED'});
+		updateJob(job._id, {log: log, message: message, status: 'FINISHED'});
 	    console.log('closing code: ' + code);
+	    processSessions()
 	});
 
 }
 
 function performSession() {
-	db.collection('jobs').findOne({farm_id:my_id, status:'READY'}, function(err, session) {
-		console.log('performSession', err, session)
-		if(session) {
+	db.collection('jobs').findOne({farm_id:my_id, status:'READY'}, {log: 0}, function(err, job) {
+		console.log('performSession', err, job)
+		if(job) {
 			deviceManager.getMatchingDevice(function(udid) {
 				if(udid)
-					runSesssion(session, udid)
-				else
-					updateJob(session.session_id, {message: "No matching device found to run the script", status: 'FINISHED'});
+					runSesssion(job, udid)
+				else {
+					updateJob(job._id, {message: "No matching device found to run the script", status: 'FINISHED'});
+					processSessions()
+				}
 			})
 		}
 	})
 }
 
 function processSessions() {
-	db.collection('jobs').findOne({farm_id:my_id, status:'CREATED'}, function(err, session) {
-		console.log('-> processSession', session)
-		if(!session || !session.session_id) {
+	db.collection('jobs').findOne({farm_id:my_id, status:'CREATED'}, function(err, job) {
+		console.log('-> processSession', job)
+		if(!job || !job.session_id) {
 			performSession()
 			return
 		}
 		//updateJobStatus(session.session_id, 'DOWNLOADING')
-		var path = 'tmp/'+session.app_id+'/'
-		downloadApp(session.app_id, path, function(app_path) {
-			updateJob(session.session_id, {app_path: app_path})
-			console.log('-> downloadApp', session.app_path)
-			path += session.script_id + '/'
-			downloadScript(session.script_id, path, function(script_path) {
-				updateJob(session.session_id, {script_path: script_path})
-				console.log('-> downloadScript', session.script_path)
-				updateJobStatus(session.session_id, 'READY', function(){
+		var path = 'tmp/'+job.app_id+'/'
+		downloadApp(job.app_id, path, function(app_path) {
+			updateJob(job._id, {app_path: app_path})
+			console.log('-> downloadApp', job.app_path)
+			path += job.script_id + '/'
+			downloadScript(job.script_id, path, function(script_path) {
+				updateJob(job._id, {script_path: script_path})
+				console.log('-> downloadScript', job.script_path)
+				updateJobStatus(job._id, 'READY', function(){
 					performSession()
 				})
 				
@@ -135,22 +138,5 @@ function processSessions() {
 
 exports.submitJob = function(sessions) {
 	console.log("-> submitJob", sessions.length)
-	for(var i = 0; i < sessions.length; ++i) {
-		var _ses = {
-			farm_id: my_id, 
-			session_id: new BSON.ObjectID(sessions[i]._id), 
-			app_id: new BSON.ObjectID(sessions[i].app_id), 
-			script_id: new BSON.ObjectID(sessions[i].script_id), 
-			status: 'CREATED', 
-			createdAt: new Date()
-		}
-		db.collection('jobs').insert(_ses, function (err, result) {
-			if (err) {
-				console.log('An error has occurred', err.message);
-			} else {
-				console.log('Success: ', result);
-			}
-			processSessions()
-		});
-	}
+	processSessions()
 }

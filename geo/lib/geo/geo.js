@@ -72,6 +72,10 @@ router.delete('/session/:session', router.callbacks.deleteSession);
 
 router.get('/app/:id/script/:script/session/:session/job.html', router.callbacks.showJobs);
 
+router.post('/app/:id/script/:script/session/:session/job', router.callbacks.addJob);
+
+router.post('/job/:job/redo', router.callbacks.redoJob);
+
 router.get('/job/:job/log', router.callbacks.getJobLog);
 
 /**
@@ -249,7 +253,7 @@ router.delete('/session', router.callbacks.deleteSession);
  *
  * @apiError The <code>error</code>field will have more diagnostic info/message.
  */
-router.get('/app/:id/script/:script/session/:session/action.html', router.callbacks.showActions);
+router.get('/app/:id/script/:script/session/:session/job/:job/action.html', router.callbacks.showActions);
 
 /**
  * @api {get} /:id GetAction

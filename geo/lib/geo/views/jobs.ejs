@@ -24,21 +24,46 @@ pre {
 </style>
 <script>
     function showLog(job_id) {
-        doApiCall('/geo/job/'+job_id+'/log', {});
+        var logPre = $('#logPre');
+        logPre.html("Please wait...");
+        $.ajax({
+            type: "GET",
+            url: '/geo/job/'+job_id+'/log',
+            dateType: 'json',
+            data: {},
+            success: function (data, textStatus, jqXHR) {
+                logPre.html(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                logPre.html(textStatus + ":" + errorThrown);
+            },
+            complete: function () {
+                logPre.show()
+            }
+        });
         $('#myLog').modal('show'); 
         return false;
+    }
+
+    function newJob(app_id, script_id, session_id) {
+        doApiCall('/geo/app/' + app_id + '/script/' + script_id + '/session/' + session_id + '/job', {});
+    }
+
+    function redoJob(job_id) {
+        doApiCall('/geo/job/'+job_id+'/redo', {});
     }
 
     function doApiCall(path, _data) {
         var logPre = $('#logPre');
         logPre.html("Please wait...");
         $.ajax({
-            type: "GET",
+            type: "POST",
             url: path,
             dateType: 'json',
             data: _data,
             success: function (data, textStatus, jqXHR) {
                 logPre.html(data);
+                location.reload()
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 logPre.html(textStatus + ":" + errorThrown);
@@ -63,6 +88,7 @@ pre {
         <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html">Sessions</a></li>
         <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html"><%=session.createdAt%></a></li>
         <li class="active">Actions</li>
+        <a href="#" class="pull-right" onclick="return newJob('<%=session.app_id%>', '<%=session.script_id%>', '<%=session._id%>');">New Job</a>
     </ol>
     <!-- Modal -->
     <div class="modal fade" id="myLog" role="dialog">
@@ -105,8 +131,9 @@ pre {
                             <td><%=job.message%></td>
                             <td><%=job.createdAt%></td>
                             <td>
-                                <a href='#' onclick="return showLog('<%=job._id%>')">View log</a> | 
-                                <button onclick="return deleteSession('<%=session._id%>')">Re Do</button>
+                                <a href='#' onclick="return showLog('<%=job._id%>')">View log</a> |
+                                    <a href='/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session/<%=session._id%>/job/<%=job._id%>/action.html'>Results</a> | 
+                                <button onclick="return redoJob('<%=job._id%>')">Re Do</button>
                             </td>
                         </tr>
                         <% });%>

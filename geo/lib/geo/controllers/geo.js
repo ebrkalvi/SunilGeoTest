@@ -21,9 +21,7 @@ function insertEvent(geo, res) {
 			safe: true
 		}, function (err, result) {
 			if (err) {
-				res.send({
-					'error': 'An error has occurred'
-				});
+				res.send({err: 'An error has occurred'});
 			} else {
 				console.log('Success: ' + JSON.stringify(result[0]));
 				res.send(result[0]);
@@ -110,7 +108,70 @@ exports.showJobs = function (req, res) {
 		});
 	});
 
+	farmManager.processPendingSessions()
 };
+
+exports.addJob = function(req, res) {
+	console.log("-> addJob", req.params);
+	db.collection('apps').findOne({_id: new BSON.ObjectID(req.params.id)}, {_id: 0, name: 1 }, function (err, app) {
+		console.log("apps", err, app)
+		if (err || !app) {
+			res.status(404).send({err: err || "App not found"})
+			return
+		}
+		db.collection('scripts').findOne({_id: new BSON.ObjectID(req.params.script)}, {_id: 0, name: 1 }, function (err, script) {
+			console.log("scripts", err, script)
+			if (err || !script) {
+				res.status(404).send({err: err || "Script not found"})
+				return
+			}
+			db.collection('sessions').findOne({_id: new BSON.ObjectID(req.params.session)}, function (err, session) {
+				if (err || !session) {
+					res.status(404).send({err: err || "Session not Found"})
+					return
+				}
+				var _job = {
+					//farm_id: my_id, 
+					session_id: new BSON.ObjectID(session._id), 
+					app_id: new BSON.ObjectID(session.app_id), 
+					script_id: new BSON.ObjectID(session.script_id), 
+					status: 'CREATED', 
+					createdAt: new Date()
+				}
+				db.collection('farms').find({status: 'APPROVED'}, {uid: 1}).toArray(function (err, farms) {
+			        console.log("Farms count", farms.length)
+			        for (var i = 0; i < farms.length; ++i) {
+			            _job.farm_id = farms[i].uid
+			            db.collection('jobs').insert(_job, function (err, result) {
+							if (err) {
+								console.log('An error has occurred while adding job', err.message);
+							} else {
+								console.log('Success adding job: ', result);
+							}
+						});
+			        }
+			        res.json({status: 0})
+					farmManager.processPendingSessions()
+			    })
+				
+			});
+		});
+	});
+}
+
+exports.redoJob = function(req, res) {
+	console.log("-> redoJob", req.params);
+	db.collection('jobs').update({_id: new BSON.ObjectID(req.params.job)}, {$set: {status: 'CREATED', createdAt: new Date()}}, function (err, result) {
+		if (err) {
+			console.log('An error has occurred while updating job', err.message);
+			res.json({status: -1})
+		} else {
+			console.log('Success updating job: ', result);
+			res.json({status: 0})
+		}
+		farmManager.processPendingSessions()
+	});
+}
 
 exports.getJobLog = function(req, res) {
 	db.collection('jobs').findOne({_id: new BSON.ObjectID(req.params.job)}, {log: 1, _id: 0}, function (err, job) {
@@ -513,9 +574,9 @@ var formatBytes = function (bytes) {
 	return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + sizes[i];
 }
 
-function getActions(session_id, excludes, cb) {
-	console.log("getActions", session_id);
-	db.collection('actions').find({sid: new BSON.ObjectID(session_id), 'request.host': {$nin: excludes}})
+function getActions(job_id, excludes, cb) {
+	console.log("getActions", job_id);
+	db.collection('actions').find({jid: new BSON.ObjectID(job_id), 'request.host': {$nin: excludes}})
 		.limit(50).sort({'createdAt': -1})
 		.toArray(function (err, items) {
 			if (err)
@@ -563,7 +624,7 @@ exports.showActions = function (req, res) {
 					return
 				}
 				var excludes = ['metxms.citrix.com', /[^.\s]+\.apple\.com/g]
-				getActions(session._id, excludes, function (err, items) {
+				getActions(req.params.job, excludes, function (err, items) {
 					console.log("actions count", items.length, session);
 					var template = __dirname + '/../views/actions';
 					res.render(template, {

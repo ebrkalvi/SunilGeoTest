@@ -20,7 +20,7 @@ module.exports = {
             });
             db.collection('jobs').count(function (err, count) {
                 console.log("The 'jobs' collection...", count);
-                db.collection('jobs').createIndex({"farm_id":1, "session_id": 1}, {unique: true})
+                //db.collection('jobs').createIndex({"farm_id":1, "session_id": 1}, {unique: true})
             })
             return callback(err, db);
         });

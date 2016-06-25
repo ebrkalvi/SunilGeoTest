@@ -25,11 +25,9 @@ function sendRequest(conn, sub, req, cb) {
     conn.send(JSON.stringify(_req));
 }
 
-exports.index = function (req, res) {
-    console.log('-> index', req.body)
-    db.collection('farms').find({}, {
-        pwd: 0
-    }).toArray(function (err, farms) {
+exports.showFarms = function (req, res) {
+    console.log('-> showFarms', req.body)
+    db.collection('farms').find({}, {pwd: 0}).toArray(function (err, farms) {
         console.log("Farms count", farms.length)
         for (var i = 0; i < farms.length; ++i) {
             farms[i].isOnline = connections[farms[i].uid] ? true : false
@@ -85,27 +83,40 @@ exports.register = function (req, res) {
     console.log('-> register', req.ip, req.body)
     var farm = {
         uid: req.body.my_id,
+        status: 'PENDING',
         ip: req.ip,
         pwd: crypto.randomBytes(32).toString('hex'),
         registered_at: new Date()
     }
-    db.collection('farms').update({
-        uid: farm.uid
-    }, farm, {
+    db.collection('farms').update({uid: farm.uid}, farm, {
         safe: true,
         upsert: true
     }, function (err, result) {
         if (err) {
-            res.status(200).json({
-                err: err,
-                status: -2
-            });
+            res.status(200).json({err: err, status: -2});
         } else {
-            res.status(200).json({
-                    pwd: farm.pwd,
-                    status: 0
-                })
-                //wss.notifyNewUser(user.phone)
+            res.status(200).json({pwd: farm.pwd, status: 0})
+            //wss.notifyNewUser(user.phone)
+        }
+    })
+}
+
+exports.approve = function (req, res) {
+    console.log('-> approve', req.ip, req.params, req.body)
+    if(!req.body.name || !req.body.location) {
+        res.status(200).json({err: "Name or Location cannot be empty", status: -1});
+        return
+    }
+    var farm = {
+        name: req.body.name,
+        location: req.body.location,
+        status: 'APPROVED'
+    }
+    db.collection('farms').update({uid: req.params.farm, status: 'PENDING'}, {$set: farm}, function (err, result) {
+        if (err) {
+            res.status(200).json({err: err, status: -2});
+        } else {
+            res.status(200).json({res: "Approved", status: 0})
         }
     })
 }
@@ -171,9 +182,9 @@ wss.on('connection', function connection(client) {
             };
             if (req.subject == 'login') {
                 var login = req.body
-                db.collection('farms').findOne({uid: login.uid, pwd: login.pwd}, {pwd: 0, _id: 0, uid: 0}, function (err, farm) {
+                db.collection('farms').findOne({uid: login.uid, pwd: login.pwd, status: 'APPROVED'}, {pwd: 0, _id: 0, uid: 0}, function (err, farm) {
                     console.log('farms.count: ', err, farm, login);
-                    if (!err && farm.ip) {
+                    if (!err && farm && farm.ip) {
                         res.status = 0
                         res.token = crypto.randomBytes(32).toString('hex')
                         client.ip = farm.ip

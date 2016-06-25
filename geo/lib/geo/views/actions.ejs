@@ -22,6 +22,7 @@ var trimString = function(passedString, startstring, endstring) {
         <li><a href="/geo/app/<%=session.app_id%>/script.html"><%=script.name%></a></li>
         <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html">Sessions</a></li>
         <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html"><%=session.createdAt%></a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session/<%=session._id%>/job.html">Jobs</a></li>
         <li class="active">Actions</li>
     </ol>
     <div class="row">
@@ -63,7 +64,7 @@ var trimString = function(passedString, startstring, endstring) {
                             <td><%=action.total_time%></td>
                             <td><%=action.response_size%></td>
                         </tr> <% } else { %>
-                            <tr><td colspan=8><%=action.action%></td></tr>
+                            <tr><td colspan=8><b><%=action.action%></b> at <%=action.createdAt%></td></tr>
                             <% } });%>
                     </tbody>
                 </table>

@@ -11,8 +11,9 @@ module.exports = router;
 router.callbacks    = require('./controllers/manager');
 router.models       = require('./models');
 
-router.get('/', router.callbacks.index);
+router.get('/', router.callbacks.showFarms);
 router.post('/register', router.callbacks.register);
 router.get('/device/index.html', router.callbacks.showDevices)
 router.get('/devices/:uid/device/:udid', router.callbacks.getDeviceInfo)
+router.post('/:farm/approve', router.callbacks.approve);
 

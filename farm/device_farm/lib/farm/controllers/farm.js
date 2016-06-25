@@ -24,14 +24,14 @@ exports.performSession = function (session, cb) {
     cb(null, {res: 'Submitted'})
 };
 
-var activeSession
+var activeJob
 
 function insertEvent(geo, res) {
-	geo.sid = new BSON.ObjectID(activeSession)
+	geo.jid = new BSON.ObjectID(activeJob)
 	geo.action = currentAction
 	geo.createdAt = new Date()
 	geo.type = geo.type ? geo.type : 'Network'
-		console.log('Adding geo: ' + JSON.stringify(geo));
+	console.log('Adding geo: ' + JSON.stringify(geo));
 	db.collection('actions').insert(geo, function (err, result) {
 		if (err) {
 			res.send({'error': 'An error has occurred'});
@@ -43,24 +43,24 @@ function insertEvent(geo, res) {
 }
 
 exports.addGeo = function (req, res) {
-	if (!activeSession)
+	if (!activeJob)
 		res.send({'error': 'No active session!'});
 	else
 		insertEvent(req.body, res);
 }
 
-exports.activateSession = function (req, res) {
-	console.log('Activated Session: ', req.body);
-	activeSession = req.body.sid
-	res.send(activeSession);
+exports.activateJob = function (req, res) {
+	console.log('Activated Job: ', req.body);
+	activeJob = req.body.jid
+	res.send(activeJob);
 };
 
-exports.deactivateSession = function (req, res) {
-	if (req.body.sid == activeSession) {
-		activeSession = undefined
+exports.deactivateJob = function (req, res) {
+	if (req.body.jid == activeJob) {
+		activeJob = undefined
 		currentAction = undefined
-		console.log('De-Activated Session: ' + req.body.sid);
-		res.send(req.body.sid);
+		console.log('De-Activated Job: ' + req.body.jid);
+		res.send(req.body.jid);
 	} else
 		res.send({error: 'An error has occurred'});
 };

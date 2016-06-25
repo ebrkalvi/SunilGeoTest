@@ -27,18 +27,18 @@ public class GeoTestingClient {
         return doPOSTApiCall("/geo/session", sessionObject.toString());
     }*/
     
-    public void activateSession(String sid) {
+    public void activateJob(String jid) {
         JsonObject sessionObject = Json.createObjectBuilder()
-        .add("sid", sid)
+        .add("jid", jid)
         .build();
-        doPOSTApiCall("/farm/geo/activateSession", sessionObject.toString());
+        doPOSTApiCall("/farm/geo/activateJob", sessionObject.toString());
     }
     
-    public void deactivateSession(String sid) {
+    public void deactivateJob(String jid) {
         JsonObject sessionObject = Json.createObjectBuilder()
-        .add("sid", sid)
+        .add("jid", jid)
         .build();
-        doPOSTApiCall("/farm/geo/deactivateSession", sessionObject.toString());
+        doPOSTApiCall("/farm/geo/deactivateJob", sessionObject.toString());
     }
 
     public void setCurrentAction(String action) {

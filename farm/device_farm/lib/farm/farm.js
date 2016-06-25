@@ -9,8 +9,8 @@ router.callbacks = require('./controllers/farm');
 router.models = require('./models');
 
 router.post('/geo', router.callbacks.addGeo);
-router.post('/geo/activateSession', router.callbacks.activateSession);
-router.post('/geo/deactivateSession', router.callbacks.deactivateSession);
+router.post('/geo/activateJob', router.callbacks.activateJob);
+router.post('/geo/deactivateJob', router.callbacks.deactivateJob);
 router.post('/geo/currentAction', router.callbacks.setCurrentAction);
 
 router.get('/device', router.callbacks.getDevices);

@@ -33,7 +33,7 @@ public class iOSTestCaseRunner {
     
     IOSDriver<WebElement> driver;
     GeoTestingClient geoTestingClient;
-    String currentSID;
+    String currentJID;
     
     static String findPublicIP() {
         try {
@@ -53,10 +53,10 @@ public class iOSTestCaseRunner {
             geoTestingClient = new GeoTestingClient();
             String udid = System.getenv("DEVICE_UDID");
             String appBundle = System.getenv("APP_BUNDLE");
-            String sid = System.getenv("SID");
-            System.out.println("udid:"+udid+", appBundle:"+appBundle+", sid:"+sid);
-            currentSID = sid;//geoTestingClient.createSession("Appium iOS Testcases", "com.ebricks.JambaJuice - Jamba Juice 1283-bugs/JMBAIO-1620", findPublicIP());
-            geoTestingClient.activateSession(currentSID);
+            String jid = System.getenv("JID");
+            System.out.println("udid:"+udid+", appBundle:"+appBundle+", jid:"+jid);
+            currentJID = jid;//geoTestingClient.createSession("Appium iOS Testcases", "com.ebricks.JambaJuice - Jamba Juice 1283-bugs/JMBAIO-1620", findPublicIP());
+            geoTestingClient.activateJob(currentJID);
 
             geoTestingClient.setCurrentAction("Starting Up..");
 
@@ -109,7 +109,7 @@ public class iOSTestCaseRunner {
             driver.quit();
         }
 
-        geoTestingClient.deactivateSession(currentSID);
+        geoTestingClient.deactivateJob(currentJID);
     }
     
     @SuppressWarnings("unused")

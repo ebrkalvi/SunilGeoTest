@@ -26,7 +26,7 @@ public class AndroidTestCaseRunner {
     
     GeoTestingClient geoTestingClient;
     AndroidDriver<WebElement> driver;
-    String currentSID;
+    String currentJID;
     
     static String findPublicIP() {
         try {
@@ -43,8 +43,8 @@ public class AndroidTestCaseRunner {
     @Before
     public void setUp() {
     	geoTestingClient = new GeoTestingClient();
-        currentSID = null;//geoTestingClient.createSession("Appium Android Testcases", "com.olo.jambajuice", findPublicIP());
-        geoTestingClient.activateSession(currentSID);
+        currentJID = null;//geoTestingClient.createSession("Appium Android Testcases", "com.olo.jambajuice", findPublicIP());
+        geoTestingClient.activateJob(currentJID);
 
         geoTestingClient.setCurrentAction("Starting Up..");
         
@@ -93,6 +93,6 @@ public class AndroidTestCaseRunner {
         if(driver != null) {
             driver.quit();
         }
-        geoTestingClient.deactivateSession(currentSID);
+        geoTestingClient.deactivateJob(currentJID);
     }
 }

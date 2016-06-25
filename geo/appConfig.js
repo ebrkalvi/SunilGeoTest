@@ -1,7 +1,7 @@
 require('app-module-path').addPath(__dirname + '/lib');
 var bodyParser = require('body-parser');
 //var exphbs  = require('express-handlebars');
-expejs = require("express-ejs-layouts")
+var expejs = require("express-ejs-layouts")
 var mongoUtil = require('./lib/common/mongoUtil')
 
 exports.setup = function (runningApp, callback) {
