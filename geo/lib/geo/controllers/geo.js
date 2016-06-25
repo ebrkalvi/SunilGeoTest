@@ -162,7 +162,7 @@ exports.addJob = function(req, res) {
 
 exports.redoJob = function(req, res) {
 	console.log("-> redoJob", req.params);
-	db.collection('jobs').update({_id: new BSON.ObjectID(req.params.job)}, {$set: {status: 'CREATED', createdAt: new Date()}}, function (err, result) {
+	db.collection('jobs').update({_id: new BSON.ObjectID(req.params.job)}, {$set: {status: 'CREATED', message:"Redo requested", createdAt: new Date()}}, function (err, result) {
 		if (err) {
 			console.log('An error has occurred while updating job', err.message);
 			res.json({status: -1})

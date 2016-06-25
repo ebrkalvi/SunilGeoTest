@@ -118,14 +118,14 @@ function processSessions() {
 			performSession()
 			return
 		}
-		//updateJobStatus(session.session_id, 'DOWNLOADING')
+		updateJob(job._id, {message: 'Downloading App...'})
 		var path = 'tmp/'+job.app_id+'/'
 		downloadApp(job.app_id, path, function(app_path) {
-			updateJob(job._id, {app_path: app_path})
+			updateJob(job._id, {app_path: app_path, message: 'Downloading Script...'}})
 			console.log('-> downloadApp', job.app_path)
 			path += job.script_id + '/'
 			downloadScript(job.script_id, path, function(script_path) {
-				updateJob(job._id, {script_path: script_path})
+				updateJob(job._id, {script_path: script_path, message: 'Ready to run'})
 				console.log('-> downloadScript', job.script_path)
 				updateJobStatus(job._id, 'READY', function(){
 					performSession()
