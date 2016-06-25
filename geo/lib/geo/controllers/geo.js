@@ -141,12 +141,13 @@ exports.addJob = function(req, res) {
 				db.collection('farms').find({status: 'APPROVED'}, {uid: 1}).toArray(function (err, farms) {
 			        console.log("Farms count", farms.length)
 			        for (var i = 0; i < farms.length; ++i) {
+			        	delete _job._id
 			            _job.farm_id = farms[i].uid
 			            db.collection('jobs').insert(_job, function (err, result) {
 							if (err) {
 								console.log('An error has occurred while adding job', err.message);
 							} else {
-								console.log('Success adding job: ', result);
+								console.log('Success adding job: ', _job);
 							}
 						});
 			        }
