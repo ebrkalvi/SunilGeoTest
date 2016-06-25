@@ -40,7 +40,7 @@ exports.setup = function (runningApp, callback) {
     global.my_pwd = nconf.get('pwd')
     if (!global.my_pwd) {
         request.post(
-            REMOTE_SERVER + '/farm/register', {
+            REMOTE_SERVER + '/farms/register', {
                 form: {
                     my_id: global.my_id
                 }
@@ -62,7 +62,7 @@ exports.setup = function (runningApp, callback) {
                         });
                     });
                 } else {
-                    console.error("Failed registering", error, response)
+                    console.error("Failed registering", error, response.statusCode)
                 }
             }
         );
