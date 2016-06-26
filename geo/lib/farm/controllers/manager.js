@@ -22,7 +22,9 @@ function sendRequest(conn, sub, req, cb) {
     _req.body = req
     if (cb)
         requests[_req.reqId] = cb
-    conn.send(JSON.stringify(_req));
+    conn.send(JSON.stringify(_req), function ack(error) {
+        console.log('-> sendRequest error', error)
+    });
 }
 
 exports.showFarms = function (req, res) {
