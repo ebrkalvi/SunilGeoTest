@@ -195,7 +195,7 @@ wss.on('connection', function connection(client) {
                         res.body = {status: 0, token: crypto.randomBytes(32).toString('hex')}
                         client.ip = farm.ip
                         client.uid = login.uid
-                        client.token = res.token
+                        client.token = res.body.token
                         connections[client.uid] = client
                         client.send(JSON.stringify(res));
                     } else {

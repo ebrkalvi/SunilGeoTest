@@ -19,6 +19,7 @@ router.get('/device/:id', router.callbacks.getDeviceInfo);
 var ws
 var requests = {}
 var reqId = 0
+var token
 
 function sendRequest(sub, req, cb) {
     var _req = {}
@@ -53,6 +54,7 @@ function ws_open() {
     sendRequest('login', {uid: global.my_id, pwd: global.my_pwd}, function(err, res) {
         console.log('-> login cb', err, res)
         if(!err) {
+            token = res.token
             keepAlive()
         } else {
             ws.close()
