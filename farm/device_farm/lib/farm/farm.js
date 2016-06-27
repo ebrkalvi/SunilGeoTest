@@ -24,6 +24,7 @@ var token
 function sendRequest(sub, req, cb) {
     var _req = {}
     _req.origin = 'Client'
+    _req.token = token
     _req.reqId = reqId++;
     _req.subject = sub
     _req.body = req
@@ -44,7 +45,7 @@ var keepAlive = function() {
     sendRequest('ping', {}, function(err, res) {
         console.log('-> ping cb', err, res)
         if(!err) {
-            setTimeout(keepAlive, 1000 * 5);
+            setTimeout(keepAlive, 1000 * 15);
         }
     })
 }
