@@ -14,6 +14,11 @@ var requests = {}
 
 var reqId = 0
 
+listener.ping = function(req, res, client) {
+    res.body = {status: 0}
+    client.send(JSON.stringify(res));
+}
+
 function sendRequest(conn, sub, req, cb) {
     var _req = {}
     _req.origin = 'Server'
@@ -187,8 +192,7 @@ wss.on('connection', function connection(client) {
                 db.collection('farms').findOne({uid: login.uid, pwd: login.pwd, status: 'APPROVED'}, {pwd: 0, _id: 0, uid: 0}, function (err, farm) {
                     console.log('farms.count: ', err, farm, login);
                     if (!err && farm && farm.ip) {
-                        res.status = 0
-                        res.token = crypto.randomBytes(32).toString('hex')
+                        res.body = {status: 0, token: crypto.randomBytes(32).toString('hex')}
                         client.ip = farm.ip
                         client.uid = login.uid
                         client.token = res.token
@@ -212,7 +216,7 @@ wss.on('connection', function connection(client) {
                 }
 
                 if (listener.hasOwnProperty(req.subject)) {
-                    listener[req.subject](req, client)
+                    listener[req.subject](req, res, client)
                 } else {
                     console.log("Unknown subject!", req.subject)
                     res.status = -1

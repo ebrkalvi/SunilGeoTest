@@ -17,15 +17,20 @@ router.get('/device', router.callbacks.getDevices);
 router.get('/device/:id', router.callbacks.getDeviceInfo);
 
 var ws
+var requests = {}
 var reqId = 0
 
-function sendRequest(sub, req) {
+function sendRequest(sub, req, cb) {
     var _req = {}
     _req.origin = 'Client'
     _req.reqId = reqId++;
     _req.subject = sub
     _req.body = req
-    ws.send(JSON.stringify(_req));
+    if (cb)
+        requests[_req.reqId] = cb
+    ws.send(JSON.stringify(_req), function ack(error) {
+        console.log('-> sendRequest error', error)
+    });
 }
 
 function sendResponse(res) {
@@ -33,11 +38,25 @@ function sendResponse(res) {
     ws.send(JSON.stringify(_res));
 }
 
+
+var keepAlive = function() {
+    sendRequest('ping', {}, function(err, res) {
+        console.log('-> ping cb', err, res)
+        if(!err) {
+            setTimeout(keepAlive, 1000 * 5);
+        }
+    })
+}
+
 function ws_open() {
     console.log('-> open')
-    sendRequest('login', {
-        uid: global.my_id,
-        pwd: global.my_pwd
+    sendRequest('login', {uid: global.my_id, pwd: global.my_pwd}, function(err, res) {
+        console.log('-> login cb', err, res)
+        if(!err) {
+            keepAlive()
+        } else {
+            ws.close()
+        }
     })
 }
 
@@ -50,6 +69,8 @@ function ws_message(data, flags) {
     console.log('-> message', req)
     if (req.origin == 'Client') {
          console.error('Client callback', req)
+         requests[req.reqId](req.err, req.body)
+         delete requests[req.reqId]
     } else if (req.origin == 'Server') {
         if (req.subject == 'devices') {
             router.callbacks.getDevices(function (err, devices) {
@@ -70,9 +91,7 @@ function ws_message(data, flags) {
                 sendResponse(req)
             })
         } else {
-            req.body = {
-                error: 'Unkown Request'
-            }
+            req.body = {error: 'Unkown Request'}
             sendResponse(req)
         }
     } else {
