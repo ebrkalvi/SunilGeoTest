@@ -3,6 +3,9 @@ var bson = require('bson');
 var BSON = bson.BSONPure.BSON
 var jobs = require('./jobs.js')
 var db = require('../../common/mongoUtil.js').getDb()
+var IDeviceManager = require('../models/idevicemanager');
+
+var deviceManager = new IDeviceManager()
 
 exports.getDevices = function (cb) {
     deviceManager.list(function (err, devices) {
