@@ -13,7 +13,7 @@ router.models       = require('./models');
 
 router.get('/', router.callbacks.showFarms);
 router.post('/register', router.callbacks.register);
-router.get('/device/index.html', router.callbacks.showDevices)
-router.get('/devices/:uid/device/:udid', router.callbacks.getDeviceInfo)
+router.get('/:uid/device.html', router.callbacks.showDevices)
+router.get('/:uid/device/:udid/info', router.callbacks.getDeviceInfo)
 router.post('/:farm/approve', router.callbacks.approve);
 

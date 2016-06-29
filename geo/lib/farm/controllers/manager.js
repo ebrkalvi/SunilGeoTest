@@ -49,25 +49,20 @@ exports.showFarms = function (req, res) {
 }
 
 exports.showDevices = function (req, res) {
-    console.log('-> showDevices', req.body, req.query)
+    console.log('-> showDevices', req.body, req.params)
     var template = __dirname + '/../views/devices';
-    if (req.query.uid && connections.hasOwnProperty(req.query.uid)) {
-        var conn = connections[req.query.uid]
-        sendRequest(conn, 'devices', {
-            action: 'List'
-        }, function (result) {
+    if (req.params.uid && connections.hasOwnProperty(req.params.uid)) {
+        var conn = connections[req.params.uid]
+        sendRequest(conn, 'devices', { action: 'List'}, function (result) {
             console.log('-> devices List', result)
             res.render(template, {
                 siteTitle: "Geo Testing",
-                uid: req.query.uid,
+                uid: req.params.uid,
                 devices: result
             })
         })
     } else {
-        res.render(template, {
-            siteTitle: "Geo Testing",
-            devices: []
-        })
+        res.render(template, { siteTitle: "Geo Testing", devices: [] })
     }
 }
 

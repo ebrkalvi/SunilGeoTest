@@ -22,16 +22,18 @@ var reqId = 0
 var token
 
 function sendRequest(sub, req, cb) {
-    var _req = {}
-    _req.origin = 'Client'
-    _req.token = token
-    _req.reqId = reqId++;
-    _req.subject = sub
-    _req.body = req
+    var _req = {
+        origin: 'Client',
+        token: token,
+        reqId: reqId++,
+        subject: sub,
+        body: req
+    }
     if (cb)
         requests[_req.reqId] = cb
     ws.send(JSON.stringify(_req), function ack(error) {
-        console.log('-> sendRequest error', error)
+        if(error)
+            console.log('-> sendRequest error', error)
     });
 }
 
@@ -40,12 +42,11 @@ function sendResponse(res) {
     ws.send(JSON.stringify(_res));
 }
 
-
 var keepAlive = function() {
     sendRequest('ping', {}, function(err, res) {
         console.log('-> ping cb', err, res)
         if(!err) {
-            setTimeout(keepAlive, 1000 * 15);
+            setTimeout(keepAlive, 1000 * 30);
         }
     })
 }

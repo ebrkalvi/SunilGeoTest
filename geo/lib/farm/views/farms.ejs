@@ -97,7 +97,7 @@ function doApiCall(path, _data) {
                     <tbody>
                         <% farms.forEach(function(farm) { %>
                             <tr>
-                                <td><%=farm.name%></td>
+                                <td><a href="/farms/<%=farm.uid%>/device.html"><%=farm.name%></a></td>
                                 <td><strong><% if(farm.status == 'PENDING') { %> <a href="#" onclick="return approveDialog('<%=farm.uid%>')">PENDING</a> <% } else { %> <%=farm.status%> <% } %></strong><br /><span class="label label-<%=(farm.isOnline ? 'success' : 'danger')%>"><%=(farm.isOnline ? 'Online' : 'Offline')%></span></td>
                                 <td><%=farm.location%></td>
                                 <td><%=farm.ip%></td>
