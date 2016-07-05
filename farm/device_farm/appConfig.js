@@ -15,8 +15,8 @@ exports.setup = function (runningApp, callback) {
     nconf.use('file', {file: './.config.json'});
     nconf.load();
 
-    var HOST = 'localhost'
-    //var HOST = "52.9.101.199"
+    //var HOST = 'localhost'
+    var HOST = "52.9.101.199"
     global.WS_SERVER = 'ws://' + HOST + ':8080'
     global.REMOTE_SERVER = 'http://' + HOST + ':3000'
     global.my_id = nconf.get('my_id')
