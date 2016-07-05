@@ -37,8 +37,13 @@ exports.showFarms = function (req, res) {
     db.collection('farms').find({}, {pwd: 0}).toArray(function (err, farms) {
         console.log("Farms count", farms.length)
         for (var i = 0; i < farms.length; ++i) {
-            farms[i].isOnline = connections[farms[i].uid] ? true : false
-                //console.log("Farm", i, farms[i].uid, farms[i].isOnline)
+            var client = connections[farms[i].uid]
+            farms[i].isOnline = client ? true : false
+            if(client) {
+                //console.log("Farm", i, client.version, farms[i].ip)
+                farms[i].version = client.version
+                farms[i].ip = client.ip
+            }
         }
         var template = __dirname + '/../views/farms';
         res.render(template, {
@@ -123,6 +128,18 @@ exports.approve = function (req, res) {
     })
 }
 
+exports.ota = function (req, res) {
+    console.log('-> ota', req.ip, req.params, req.body)
+    var client = connections[req.params.farm]
+    if(client) {
+        sendRequest(client, 'ota', {}, function(result) {
+            res.status(200).json({status: 0});
+        })
+    } else {
+        res.status(200).json({err: err, status: -2});
+    }
+}
+
 exports.notifyNewFarm = function (uid) {
     db.collection('farms').find({
         uid: uid
@@ -189,6 +206,7 @@ wss.on('connection', function connection(client) {
                     if (!err && farm && farm.ip) {
                         res.body = {status: 0, token: crypto.randomBytes(32).toString('hex')}
                         client.ip = farm.ip
+                        client.version = login.version
                         client.uid = login.uid
                         client.token = res.body.token
                         connections[client.uid] = client

@@ -3,6 +3,7 @@
   "private": true,
   "description": "",
   "author": "",
+  "version": "0.0.1",
   "license": "UNLICENSE",
   "main": "./server.js",
   "repository": {

@@ -1,7 +1,9 @@
 var WebSocket = require('ws');
+var pjson = require('../../package.json');
 var router = require('express').Router({
     mergeParams: true
 });
+var exec = require('child_process').exec;
 module.exports = router;
 
 // Don't just use, but also export in case another module needs to use these as well.
@@ -20,6 +22,19 @@ var ws
 var requests = {}
 var reqId = 0
 var token
+
+function ota() {
+    var child = exec("git pull && forever restartall");
+    child.stdout.on('data', function(data) {
+        console.log(data)
+    });
+    child.stderr.on('data', function(data) {
+        console.log(data)
+    });
+    child.on('close', function(code) {
+        console.log(code)
+    });
+}
 
 function sendRequest(sub, req, cb) {
     var _req = {
@@ -52,8 +67,8 @@ var keepAlive = function() {
 }
 
 function ws_open() {
-    console.log('-> open')
-    sendRequest('login', {uid: global.my_id, pwd: global.my_pwd}, function(err, res) {
+    console.log('-> open', pjson.version)
+    sendRequest('login', {uid: global.my_id, pwd: global.my_pwd, version: pjson.version}, function(err, res) {
         console.log('-> login cb', err, res)
         if(!err) {
             token = res.token
@@ -94,6 +109,11 @@ function ws_message(data, flags) {
                 req.body = info
                 sendResponse(req)
             })
+        }  else if (req.subject == 'ota') {
+            req.err = null
+            req.body = null
+            sendResponse(req)
+            ota()
         } else {
             req.body = {error: 'Unkown Request'}
             sendResponse(req)

@@ -21,6 +21,10 @@ function approve() {
     }
 }
 
+function updateSW(farm_udid) {
+    doApiCall('/farms/'+farm_udid+'/ota', {});
+}
+
 function doApiCall(path, _data) {
     var ErrorDiv = $('#ErrorDiv')
     ErrorDiv.show()
@@ -35,7 +39,7 @@ function doApiCall(path, _data) {
             location.reload()
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            ErrorDiv.html(textStatus + ":" + errorThrown);
+            alert(textStatus + ":" + errorThrown);
         },
         complete: function () {
             ErrorDiv.show()
@@ -90,6 +94,7 @@ function doApiCall(path, _data) {
                             <th>Status</th>
                             <th>Location</th>
                             <th>IP</th>
+                            <th>Version</th>
                             <th>Registered At</th>
                             <th>...</th>
                         </tr>
@@ -101,8 +106,9 @@ function doApiCall(path, _data) {
                                 <td><strong><% if(farm.status == 'PENDING') { %> <a href="#" onclick="return approveDialog('<%=farm.uid%>')">PENDING</a> <% } else { %> <%=farm.status%> <% } %></strong><br /><span class="label label-<%=(farm.isOnline ? 'success' : 'danger')%>"><%=(farm.isOnline ? 'Online' : 'Offline')%></span></td>
                                 <td><%=farm.location%></td>
                                 <td><%=farm.ip%></td>
+                                <td><%=farm.version%></td>
                                 <td><%=farm.registered_at%></td>
-                                <td></td>
+                                <td><a href="#" onclick="return updateSW('<%=farm.uid%>')">Update Software</a></td>
                             </tr>
                             <% }) %>
                     </tbody>

@@ -16,4 +16,5 @@ router.post('/register', router.callbacks.register);
 router.get('/:uid/device.html', router.callbacks.showDevices)
 router.get('/:uid/device/:udid/info', router.callbacks.getDeviceInfo)
 router.post('/:farm/approve', router.callbacks.approve);
+router.post('/:farm/ota', router.callbacks.ota);
 
