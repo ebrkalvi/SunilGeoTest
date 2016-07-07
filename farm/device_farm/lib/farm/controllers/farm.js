@@ -37,9 +37,9 @@ function insertEvent(geo, res) {
 	console.log('Adding geo: ' + JSON.stringify(geo));
 	db.collection('actions').insert(geo, function (err, result) {
 		if (err) {
-			res.send({'error': 'An error has occurred'});
+			res.send({error: 'An error has occurred'});
 		} else {
-			console.log('Success: ', result);
+			console.log('Success: ', result.ops[0]._id);
 			res.send(result.ops[0]._id);
 		}
 	});

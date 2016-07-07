@@ -98,6 +98,10 @@ function runSesssion(job, udid) {
 }
 
 function performSession() {
+	if(currentJob) {
+		console.log('<- performSession', currentJob)
+		return
+	}
 	db.collection('jobs').findOne({farm_id:my_id, status:'READY'}, {log: 0}, function(err, job) {
 		console.log('performSession', err, job)
 		if(job) {
