@@ -47,7 +47,7 @@ function insertEvent(geo, res) {
 
 exports.addGeo = function (req, res) {
 	if (!activeJob)
-		res.send({'error': 'No active session!'});
+		res.send({'error': 'No active job!'});
 	else
 		insertEvent(req.body, res);
 }
@@ -70,8 +70,11 @@ exports.deactivateJob = function (req, res) {
 
 exports.setCurrentAction = function (req, res) {
 	currentAction = req.body.action
-	console.log('setCurrentAction: ' + currentAction);
-	insertEvent({type: 'User'}, res)
+	console.log('setCurrentAction: ', currentAction, activeJob);
+	if (!activeJob)
+		res.send({'error': 'No active job!'});
+	else
+		insertEvent({type: 'User'}, res)
 	//res.send(currentAction);
 };
 
