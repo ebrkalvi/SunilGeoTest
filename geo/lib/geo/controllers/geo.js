@@ -623,7 +623,7 @@ exports.showActions = function (req, res) {
 					res.send({err: err || "Session not Found"})
 					return
 				}
-				var excludes = ['metxms.citrix.com', /[^.\s]+\.apple\.com/g]
+				var excludes = ['metxms.citrix.com', /[^.\s]+\.apple\.com/g, /[^.\s]+\.icloud\.com/g]
 				getActions(req.params.job, excludes, function (err, items) {
 					console.log("actions count", items.length, session);
 					var template = __dirname + '/../views/actions';
