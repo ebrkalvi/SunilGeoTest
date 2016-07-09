@@ -119,15 +119,18 @@ function performSession() {
 	})
 }
 
+var processSessionsInProgress = false
 function processSessions() {
-	if(currentJob) {
-		console.log('<- processSessions', currentJob)
+	if(currentJob || processSessionsInProgress) {
+		console.log('<- processSessions', currentJob, processSessionsInProgress)
 		return
 	}
+	processSessionsInProgress = true
 	db.collection('jobs').findOne({farm_id:my_id, status:'CREATED'}, function(err, job) {
 		console.log('-> processSession', job)
 		if(!job || !job.session_id) {
 			performSession()
+			processSessionsInProgress = false
 			return
 		}
 		updateJob(job._id, {message: 'Downloading App...'})
@@ -141,6 +144,7 @@ function processSessions() {
 				console.log('-> downloadScript', job.script_path)
 				updateJobStatus(job._id, 'READY', function(){
 					performSession()
+					processSessionsInProgress = false
 				})
 				
 			})
