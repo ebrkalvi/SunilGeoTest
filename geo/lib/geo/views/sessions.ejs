@@ -1,4 +1,35 @@
 <script>
+function addCheckbox(container, name) {
+   var inputs = container.find('input');
+   var id = inputs.length+1;
+
+   $('<label class="checkbox-inline"><input id="id'+id+'" type="checkbox" value="'+name+'">'+name+'</label>').appendTo(container);
+}
+
+function showNewSessionDialog() {
+    var container = $('#geoslist');
+    container.html("")
+    var res = $('#ErrorDiv');
+    res.addClass("hide");
+    $.ajax({
+        type: "GET",
+        url: '/farms/geos',
+        dateType: 'json',
+        data: "",
+        success: function (data, textStatus, jqXHR) {
+            res.html(JSON.stringify(data, null, 4));
+            for(var i=0; i<data.length; ++i)
+                addCheckbox(container, data[i])
+            $("#myDialog").modal('show');
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert(textStatus + ":" + errorThrown);
+        },
+        complete: function () {
+            res.show()
+        }
+    });
+}
     function createSession(app_id, script_id) {
         if (app_id && script_id) {
             doApiCall('/geo/app/'+app_id+'/script/'+script_id+'/session', {});
@@ -26,10 +57,15 @@
             }
         });
     }
+
+function handleDropDownClick(it){
+    $(it).parents(".btn-group").find('.btn').html($(it).text() + ' <span class="caret"></span>');
+    $(it).parents(".btn-group").find('.btn').val($(it).data('value'));
+}
 </script>
 <ul class="nav nav-tabs">
     <li class="active"><a href="/geo/app.html">Apps</a></li>
-    <li><a href="/farms">Farms</a></li>
+    <li><a href="/farms/index.html">Farms</a></li>
 </ul>
 <div class="container-fluid">
     <br/>
@@ -39,10 +75,10 @@
         <li><a href="/geo/app/<%=app._id%>/script.html">Scripts</a></li>
         <li><a href="/geo/app/<%=app._id%>/script.html"><%=script_name%></a></li>
         <li class="active">Sessions</li>
-        <a href="#" class="pull-right" data-toggle="modal" data-target="#myApp">New Session</a>
+        <a href="#" class="pull-right" onclick="return showNewSessionDialog()">New Session</a>
     </ol>
     <!-- Modal -->
-    <div class="modal fade" id="myApp" role="dialog">
+    <div class="modal fade" id="myDialog" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -61,17 +97,24 @@
                             <label for="config-name" class="control-label">Name:</label>
                             <input type="text" class="form-control" id="config-name">
                         </div>
+                        <label class="control-label">Geos:</label> <br/>
+                        <div id="geoslist" class="form-group">
+                        </div>
+                        <div class="btn-group">
+                            <label class="control-label">Repeat:</label> <br/>
+                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Never<span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a href="#" onclick="return handleDropDownClick(this)">Daily</a></li>
+                            <li><a href="#" onclick="return handleDropDownClick(this)">Weekly</a></li>
+                            <li><a href="#" onclick="return handleDropDownClick(this)">Monthly</a></li>
+                          </ul>
+                        </div>
                         <div class="form-group">
-                            <label class="control-label">Geos:</label> <br/>
-                            <label class="checkbox-inline"><input type="checkbox" value="1">Singapore 1</label>
-                            <label class="checkbox-inline"><input type="checkbox" value="2">Singapore 2</label>
-                            <label class="checkbox-inline"><input type="checkbox" value="3">Singapore 3</label>
-                            <label class="checkbox-inline"><input type="checkbox" value="1">Singapore 1</label>
-                            <label class="checkbox-inline"><input type="checkbox" value="2">Singapore 2</label>
-                            <label class="checkbox-inline"><input type="checkbox" value="3">Singapore 3</label>
-                            <label class="checkbox-inline"><input type="checkbox" value="1">Singapore 1</label>
-                            <label class="checkbox-inline"><input type="checkbox" value="2">Singapore 2</label>
-                            <label class="checkbox-inline"><input type="checkbox" value="3">Singapore 3</label>
+                            <br/>
+                            <label class="control-label">Notify:</label> <br/>
+                            <label class="checkbox-inline"><input type="checkbox" onclick="$('#config-email').prop('disabled', !this.checked)">Yes</label> <br/>
+                            <input type="text" class="form-control" disabled="disabled" id="config-email" placeHolder="Email">
                         </div>
                     </form>
                     </form>

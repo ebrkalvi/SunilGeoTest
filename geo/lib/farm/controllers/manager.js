@@ -32,6 +32,31 @@ function sendRequest(conn, sub, req, cb) {
     });
 }
 
+exports.getGeos = function (req, res) {
+    console.log('-> getGeos', req.body)
+    db.collection('farms').distinct('location', {status: 'APPROVED'}, function (err, geos) {
+        console.log("Geos count", geos.length)
+        res.json(geos)
+    })
+}
+
+exports.getFarms = function (req, res) {
+    console.log('-> getFarms', req.body)
+    db.collection('farms').find({}, {pwd: 0}).toArray(function (err, farms) {
+        console.log("Farms count", farms.length)
+        for (var i = 0; i < farms.length; ++i) {
+            var client = connections[farms[i].uid]
+            farms[i].isOnline = client ? true : false
+            if(client) {
+                //console.log("Farm", i, client.version, farms[i].ip)
+                farms[i].version = client.version
+                farms[i].ip = client.ip
+            }
+        }
+        res.json(farms)
+    })
+}
+
 exports.showFarms = function (req, res) {
     console.log('-> showFarms', req.body)
     db.collection('farms').find({}, {pwd: 0}).toArray(function (err, farms) {
