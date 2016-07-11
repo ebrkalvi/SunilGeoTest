@@ -228,12 +228,13 @@ exports.processPendingSessions = function() {
                     var client = connections[uid];
                     if(client.location == geo) {
                         console.log('Found a farm for', geo)
-                        createNewJob(sessions[i]._id, client.uid, function(err, result) {
+                        var sid = sessions[i]._id
+                        createNewJob(sid, client.uid, function(err, result) {
                             if(!err) {
                                 sendRequest(client, 'session', [], function(res) {
                                     console.log('Sessions submitted to', uid, res)
                                 })
-                                db.collection('sessions').update({_id: sessions[i]._id}, {$set: {status: 'PROCESSED'}}, function (err, result) {
+                                db.collection('sessions').update({_id: sid}, {$set: {status: 'PROCESSED'}}, function (err, result) {
                                     console.log('Updated status', err, result)
                                 }) 
                             }
