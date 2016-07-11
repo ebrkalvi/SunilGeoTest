@@ -1,5 +1,7 @@
 var exports = module.exports;
 var db = require('../../common/mongoUtil.js').getDb()
+var bson = require("bson");
+var BSON = bson.BSONPure.BSON
 var crypto = require('crypto')
 
 var WebSocketServer = require('ws').Server,
