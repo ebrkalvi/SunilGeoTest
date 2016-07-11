@@ -221,7 +221,7 @@ exports.getSessions = function (req, res) {
 }
 
 exports.addSession = function (req, res) {
-	console.log('Adding Session: ', req.params);
+	console.log('Adding Session: ', req.params, req.body);
 	var script_id = new BSON.ObjectID(req.params.script)
 	var app_id = new BSON.ObjectID(req.params.id)
 	db.collection('apps').findOne({_id: app_id}, {_id: 0, name: 1 }, function (err, app) {
@@ -230,11 +230,19 @@ exports.addSession = function (req, res) {
 			res.status(404).send({err: err || "No such app found"})
 			return
 		}
+		if(!req.body.name || !req.body.geos || req.body.geos.length < 1) {
+			res.status(500).send({err: "Invalid parameters"})
+			return
+		}
 		var doc = {
 				createdAt: new Date(),
 				script_id: script_id,
 				app_id: app_id,
-				status: 'CREATED'
+				status: 'CREATED',
+				name: req.body.name,
+				geos: req.body.geos,
+				repeat: req.body.repeat,
+				notifyEmail: req.body.notifyEmail
 		}
 		db.collection('sessions').insert(doc, function (err, result) {
 			if (err) {

@@ -86,7 +86,7 @@ pre {
         <li><a href="/geo/app/<%=session.app_id%>/script.html">Scripts</a></li>
         <li><a href="/geo/app/<%=session.app_id%>/script.html"><%=script.name%></a></li>
         <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html">Sessions</a></li>
-        <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html"><%=session.createdAt%></a></li>
+        <li><a href="/geo/app/<%=session.app_id%>/script/<%=session.script_id%>/session.html"><%=session.name%></a></li>
         <li class="active">Actions</li>
         <a href="#" class="pull-right" onclick="return newJob('<%=session.app_id%>', '<%=session.script_id%>', '<%=session._id%>');">New Job</a>
     </ol>

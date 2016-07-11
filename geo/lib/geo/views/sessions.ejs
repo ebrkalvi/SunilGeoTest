@@ -3,7 +3,7 @@ function addCheckbox(container, name) {
    var inputs = container.find('input');
    var id = inputs.length+1;
 
-   $('<label class="checkbox-inline"><input id="id'+id+'" type="checkbox" value="'+name+'">'+name+'</label>').appendTo(container);
+   $('<label class="checkbox-inline"><input class="geoitem" type="checkbox" value="'+name+'">'+name+'</label>').appendTo(container);
 }
 
 function showNewSessionDialog() {
@@ -32,14 +32,22 @@ function showNewSessionDialog() {
 }
     function createSession(app_id, script_id) {
         if (app_id && script_id) {
-            doApiCall('/geo/app/'+app_id+'/script/'+script_id+'/session', {});
+            var params = {name: $('#config-name').val(), geos:[]}
+            $('.geoitem').each(function(i, input) {
+                if(input.checked)
+                    params.geos.push($(input).val())
+            });
+            if(!$('#config-email').prop('disabled')) {
+                params.notifyEmail = $('#config-email').val()
+            }
+            doApiCall('/geo/app/'+app_id+'/script/'+script_id+'/session', params);
         }
         return false;
     }
 
     function doApiCall(path, _data) {
         var res = $('#ErrorDiv');
-        res.addClass("hide");
+        //res.addClass("hide");
         $.ajax({
             type: "POST",
             url: path,
@@ -50,7 +58,9 @@ function showNewSessionDialog() {
                 location.reload()
             },
             error: function (jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseJSON.err)
                 res.html(textStatus + ":" + errorThrown);
+                res.show()
             },
             complete: function () {
                 res.show()
@@ -92,7 +102,6 @@ function handleDropDownClick(it){
                             <b><%=app.name%></b> for <b><%=app.platform%></b> <br>
                             Script: <b><%=script_name%></b>
                         </div>
-                        <form>
                         <div class="form-group">
                             <label for="config-name" class="control-label">Name:</label>
                             <input type="text" class="form-control" id="config-name">
@@ -116,9 +125,8 @@ function handleDropDownClick(it){
                             <label class="checkbox-inline"><input type="checkbox" onclick="$('#config-email').prop('disabled', !this.checked)">Yes</label> <br/>
                             <input type="text" class="form-control" disabled="disabled" id="config-email" placeHolder="Email">
                         </div>
+                        <p id="ErrorDiv" class="text-danger"></p>
                     </form>
-                    </form>
-                    <p id="ErrorDiv" class="text-danger hide"></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -134,15 +142,21 @@ function handleDropDownClick(it){
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th>Name</th>
                             <th>Status</th>
-                            <th>Ran At</th>
+                            <th>Geos</th>
+                            <th>Notify</th>
+                            <th>Created At</th>
                             <th>...</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% sessions.forEach(function(session) { %>
                             <tr>
+                                <td><%=session.name%></td>
                                 <td><%=session.status%></td>
+                                <td><%=session.geos%></td>
+                                <td><%=session.notifyEmail%></td>
                                 <td><%=session.createdAt%></td>
                                 <td>
                                     <a href='/geo/app/<%=session.app_id%>/script/<%=script_id%>/session/<%=session._id%>/job.html'>Jobs</a> | <button onclick="return deleteSession('<%=session._id%>')">Delete</button>

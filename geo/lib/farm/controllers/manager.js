@@ -185,15 +185,63 @@ exports.notifyNewFarm = function (uid) {
     });
 }
 
-exports.processPendingSessions = function() {
-    db.collection('sessions').find({status: 'CREATED'}, {app_id: 1, script_id:1}).toArray(function (err, sessions) {
-        console.log('processPendingSessions', err, sessions)
-        for (var uid in connections) {
-            var client = connections[uid];
-            sendRequest(client, 'session', sessions, function(res) {
-                console.log('Sessions submitted to', uid, res)
-            })
+var createNewJobInProgress = false
+function createNewJob(sid, farm_uid, cb) {
+    if(createNewJobInProgress)
+        return
+    createNewJobInProgress = true
+    db.collection('sessions').findOne({_id: new BSON.ObjectID(sid)}, function (err, session) {
+        if (err || !session) {
+            console.log("Session not Found")
+            createNewJobInProgress = false
+            return
         }
+        var _job = {
+            farm_id: farm_uid, 
+            session_id: new BSON.ObjectID(session._id), 
+            app_id: new BSON.ObjectID(session.app_id), 
+            script_id: new BSON.ObjectID(session.script_id), 
+            status: 'CREATED', 
+            createdAt: new Date()
+        }
+        db.collection('jobs').insert(_job, function (err, result) {
+            if (err) {
+                console.log('An error has occurred while adding job', err.message);
+            } else {
+                console.log('Success adding job: ', _job);
+            }
+            cb(err, result)
+            createNewJobInProgress = false
+        });
+    });
+}
+
+exports.processPendingSessions = function() {
+    db.collection('sessions').find({status: 'CREATED'}, {geos: 1}).toArray(function (err, sessions) {
+        console.log('processPendingSessions', err, sessions)
+        for(var i=0; i<sessions.length; ++i) {
+            for(var j=0; j<sessions[i].geos.length; ++j) {
+                var geo = sessions[i].geos[j]
+                for (var uid in connections) {
+                    var client = connections[uid];
+                    if(client.location == geo) {
+                        console.log('Found a farm for', geo)
+                        createNewJob(sessions[i]._id, client.uid, function(err, result) {
+                            if(!err) {
+                                sendRequest(client, 'session', [], function(res) {
+                                    console.log('Sessions submitted to', uid, res)
+                                })
+                                db.collection('sessions').update({_id: sessions[i]._id}, {$set: {status: 'PROCESSED'}}, function (err, result) {
+                                    console.log('Updated status', err, result)
+                                }) 
+                            }
+                        })
+                        
+                    }
+                }
+            }   
+        }
+        
     });
 }
 
@@ -234,6 +282,7 @@ wss.on('connection', function connection(client) {
                         client.version = login.version
                         client.uid = login.uid
                         client.token = res.body.token
+                        client.location = farm.location
                         connections[client.uid] = client
                         client.send(JSON.stringify(res));
                     } else {
