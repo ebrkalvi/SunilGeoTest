@@ -17,7 +17,9 @@ var requests = {}
 var reqId = 0
 
 listener.ping = function(req, res, client) {
+    console.log('-> ping', req.body)
     res.body = {status: 0}
+    client.proxyStatus = req.body.proxyStatus
     client.send(JSON.stringify(res));
 }
 
@@ -53,6 +55,7 @@ exports.getFarms = function (req, res) {
                 //console.log("Farm", i, client.version, farms[i].ip)
                 farms[i].version = client.version
                 farms[i].ip = client.ip
+                farms[i].proxyStatus = client.proxyStatus
             }
         }
         res.json(farms)
@@ -70,6 +73,7 @@ exports.showFarms = function (req, res) {
                 //console.log("Farm", i, client.version, farms[i].ip)
                 farms[i].version = client.version
                 farms[i].ip = client.ip
+                farms[i].proxyStatus = client.proxyStatus
             }
         }
         var template = __dirname + '/../views/farms';
@@ -224,11 +228,11 @@ exports.processPendingSessions = function() {
         for(var i=0; i<sessions.length; ++i) {
             for(var j=0; j<sessions[i].geos.length; ++j) {
                 var geo = sessions[i].geos[j]
+                var sid = sessions[i]._id
                 for (var uid in connections) {
                     var client = connections[uid];
                     if(client.location == geo) {
                         console.log('Found a farm for', geo)
-                        var sid = sessions[i]._id
                         createNewJob(sid, client.uid, function(err, result) {
                             if(!err) {
                                 sendRequest(client, 'session', [], function(res) {

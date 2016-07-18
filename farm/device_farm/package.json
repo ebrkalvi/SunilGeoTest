@@ -3,7 +3,7 @@
   "private": true,
   "description": "",
   "author": "",
-  "version": "0.0.21",
+  "version": "0.0.3",
   "license": "UNLICENSE",
   "main": "./server.js",
   "repository": {
@@ -28,7 +28,8 @@
     "yaml": "*",
     "mongodb": "*",
     "nconf": "*",
-    "ws": "*"
+    "ws": "*",
+    "adbkit": "*"
   },
   "devDependencies": {
     "after": "^0.8.1",

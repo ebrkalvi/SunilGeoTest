@@ -95,6 +95,7 @@ function doApiCall(path, _data) {
                             <th>Location</th>
                             <th>IP</th>
                             <th>Version</th>
+                            <th>Proxy Status</th>
                             <th>Registered At</th>
                             <th>...</th>
                         </tr>
@@ -107,6 +108,7 @@ function doApiCall(path, _data) {
                                 <td><%=farm.location%></td>
                                 <td><%=farm.ip%></td>
                                 <td><%=farm.version%></td>
+                                <td><%=farm.proxyStatus%></td>
                                 <td><%=farm.registered_at%></td>
                                 <td><a href="#" onclick="return updateSW('<%=farm.uid%>')">Update Software</a></td>
                             </tr>

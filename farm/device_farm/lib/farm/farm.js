@@ -3,6 +3,7 @@ var pjson = require('../../package.json');
 var router = require('express').Router({
     mergeParams: true
 });
+const readline = require('readline');
 var exec = require('child_process').exec;
 module.exports = router;
 
@@ -24,7 +25,7 @@ var reqId = 0
 var token
 
 function ota() {
-    var child = exec("git pull && forever restartall");
+    var child = exec("git pull && npm install && forever restartall");
     child.stdout.on('data', function(data) {
         console.log(data)
     });
@@ -57,13 +58,98 @@ function sendResponse(res) {
     ws.send(JSON.stringify(_res));
 }
 
+var Promise = require('bluebird')
+var adb = require('adbkit')
+var client = adb.createClient()
+
+// 
+// adb shell ps|grep python
+// adb shell su -c "/data/data/ru.meefik.linuxdeploy/files/bin/linuxdeploy start"
+// adb shell su -c "/data/data/ru.meefik.linuxdeploy/files/bin/linuxdeploy shell 'nohup mitmdump -s /home/android/sunil/geotesting.py&'"
+//
+function isProxyRunning(cb) {
+    client.listDevices()
+      .then(function(devices) {
+        //console.log('-> devices', devices)
+        return Promise.map(devices, function(device) {
+          return client.shell(device.id, 'ps|grep python')
+            // Use the readAll() utility to read all the content without
+            // having to deal with the events. `output` will be a Buffer
+            // containing all the output.
+            .then(adb.util.readAll)
+            .then(function(output) {
+              //console.log('[%s] %s', device.id, output.toString().trim())
+              return output.toString().trim()
+            })
+        })
+      })
+      .then(function(res) {
+        cb(null, res)
+      })
+      .catch(function(err) {
+        cb(err, null)
+      })
+}
+
+function startProxy(cb) {
+    client.listDevices()
+      .then(function(devices) {
+        //console.log('-> devices', devices)
+        return Promise.map(devices, function(device) {
+          return client.shell(device.id, 'su -c "/data/data/ru.meefik.linuxdeploy/files/bin/linuxdeploy start"' + 
+                ' && su -c "/data/data/ru.meefik.linuxdeploy/files/bin/linuxdeploy shell \'mitmdump -s /home/android/sunil/geotesting.py\' | grep Geo"')
+            .then(function(stream) {
+                console.log("-> Stream")
+                const rl = readline.createInterface({input: stream});
+                rl.on('line', function(d) {
+                    var line = d.toString('utf8')
+                    if(line.indexOf('Geo:') == 0) {
+                        var req = {body: JSON.parse(line.substring(4))}
+                        //console.log(req)
+                        router.callbacks.addGeo(req, {send: function(b){console.log(b)}})
+                    }
+                    else
+                        console.log("-> data", line)
+                })
+                stream.on('end', function() {
+                    console.log("-> end")
+                })
+                //return adb.util.readAll(stream)
+            })
+            .then(function(output) {
+              return "";//output.toString().trim()
+            })
+        })
+      })
+      .then(function(res) {
+        cb(null, res)
+      })
+      .catch(function(err) {
+        cb(err, null)
+      })
+}
+
+var proxyStatus = "Unknown"
 var keepAlive = function() {
-    sendRequest('ping', {}, function(err, res) {
-        console.log('-> ping cb', err, res)
-        if(!err) {
-            setTimeout(keepAlive, 1000 * 30);
-        }
+    isProxyRunning(function(err, res) {
+        console.log('-> isProxyRunning', err, res)
+        if(!err && res.length > 0){
+            proxyStatus = res[0] ? "Proxy is Up" : "Proxy is *Down*"
+            if(!res[0])
+                startProxy(function(err, res){
+                    console.log('-> startProxy', err, res)
+                })
+        } else
+            proxyStatus = err || "Proxy device not available"
+
+        sendRequest('ping', {proxyStatus: proxyStatus}, function(err, res) {
+            console.log('-> ping cb', err, res)
+            if(!err) {
+                setTimeout(keepAlive, 1000 * 30);
+            }
+        })
     })
+    
 }
 
 function ws_open() {
