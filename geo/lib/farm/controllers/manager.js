@@ -224,6 +224,7 @@ function createNewJob(sid, farm_uid, cb) {
 
 exports.processPendingSessions = function() {
     db.collection('sessions').find({status: 'CREATED'}, {geos: 1}).toArray(function (err, sessions) {
+        sendRequest(client, 'session', [], function(res) { console.log('Sessions submitted') })
         console.log('processPendingSessions', err, sessions)
         for(var i=0; i<sessions.length; ++i) {
             for(var j=0; j<sessions[i].geos.length; ++j) {
@@ -256,7 +257,6 @@ exports.notifyNewSession = function (sid) {
     db.collection('sessions').findOne({_id: sid}, {app_id: 1, script_id:1, _id: 0 }, function (err, session) {
         console.log('notifyNewSession', err, session)
         exports.processPendingSessions()
-        sendRequest(client, 'session', [], function(res) { console.log('Sessions submitted') })
     });
 }
 
