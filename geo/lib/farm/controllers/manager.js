@@ -256,6 +256,7 @@ exports.notifyNewSession = function (sid) {
     db.collection('sessions').findOne({_id: sid}, {app_id: 1, script_id:1, _id: 0 }, function (err, session) {
         console.log('notifyNewSession', err, session)
         exports.processPendingSessions()
+        sendRequest(client, 'session', [], function(res) { console.log('Sessions submitted') })
     });
 }
 
