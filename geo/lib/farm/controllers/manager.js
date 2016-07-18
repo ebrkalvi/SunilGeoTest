@@ -224,8 +224,13 @@ function createNewJob(sid, farm_uid, cb) {
 
 exports.processPendingSessions = function() {
     db.collection('sessions').find({status: 'CREATED'}, {geos: 1}).toArray(function (err, sessions) {
-        sendRequest(client, 'session', [], function(res) { console.log('Sessions submitted') })
         console.log('processPendingSessions', err, sessions)
+        if(sessions.length == 0) {
+            for (var uid in connections) {
+                var client = connections[uid];
+                sendRequest(client, 'session', [], function(res) { console.log('Sessions submitted to', uid, res)})
+            }
+        }
         for(var i=0; i<sessions.length; ++i) {
             for(var j=0; j<sessions[i].geos.length; ++j) {
                 var geo = sessions[i].geos[j]
