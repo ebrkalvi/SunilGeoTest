@@ -130,30 +130,10 @@ exports.addJob = function(req, res) {
 					res.status(404).send({err: err || "Session not Found"})
 					return
 				}
-				var _job = {
-					//farm_id: my_id, 
-					session_id: new BSON.ObjectID(session._id), 
-					app_id: new BSON.ObjectID(session.app_id), 
-					script_id: new BSON.ObjectID(session.script_id), 
-					status: 'CREATED', 
-					createdAt: new Date()
+				for(var j=0; j<session.geos.length; ++j) {
+					farmManager.createNewJob(session, session.geos[j])
 				}
-				db.collection('farms').find({status: 'APPROVED'}, {uid: 1}).toArray(function (err, farms) {
-			        console.log("Farms count", farms.length)
-			        for (var i = 0; i < farms.length; ++i) {
-			        	delete _job._id
-			            _job.farm_id = farms[i].uid
-			            db.collection('jobs').insert(_job, function (err, result) {
-							if (err) {
-								console.log('An error has occurred while adding job', err.message);
-							} else {
-								console.log('Success adding job: ', _job);
-							}
-						});
-			        }
-			        res.json({status: 0})
-					farmManager.processPendingSessions()
-			    })
+			    res.json({status: 0})
 				
 			});
 		});

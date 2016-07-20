@@ -192,34 +192,40 @@ exports.notifyNewFarm = function (uid) {
 }
 
 var createNewJobInProgress = false
-function createNewJob(sid, farm_uid, cb) {
+exports.createNewJob = function(session, geo) {
+    console.log('-> createNewJob', createNewJobInProgress,  geo)
     if(createNewJobInProgress)
         return
     createNewJobInProgress = true
-    db.collection('sessions').findOne({_id: new BSON.ObjectID(sid)}, function (err, session) {
-        if (err || !session) {
-            console.log("Session not Found")
-            createNewJobInProgress = false
-            return
-        }
-        var _job = {
-            farm_id: farm_uid, 
-            session_id: new BSON.ObjectID(session._id), 
-            app_id: new BSON.ObjectID(session.app_id), 
-            script_id: new BSON.ObjectID(session.script_id), 
-            status: 'CREATED', 
-            createdAt: new Date()
-        }
-        db.collection('jobs').insert(_job, function (err, result) {
-            if (err) {
-                console.log('An error has occurred while adding job', err.message);
-            } else {
-                console.log('Success adding job: ', _job);
+    for (var uid in connections) {
+        var client = connections[uid];
+        if(client.location == geo) {
+            console.log('Found a farm for', geo)
+            var _job = {
+                farm_id: client.uid, 
+                session_id: new BSON.ObjectID(session._id), 
+                app_id: new BSON.ObjectID(session.app_id), 
+                script_id: new BSON.ObjectID(session.script_id), 
+                status: 'CREATED', 
+                createdAt: new Date()
             }
-            cb(err, result)
-            createNewJobInProgress = false
-        });
-    });
+            db.collection('jobs').insert(_job, function (err, result) {
+                if (err) {
+                    console.log('An error has occurred while adding job', err.message);
+                } else {
+                    console.log('Success adding job: ', _job);
+                    sendRequest(client, 'session', [], function(res) {
+                        console.log('Sessions submitted to', uid, res)
+                    })
+                    db.collection('sessions').update({_id: session._id}, {$set: {status: 'PROCESSED'}}, function (err, result) {
+                        console.log('Updated status', err, result)
+                    })
+                }
+                createNewJobInProgress = false
+            });
+            
+        }
+    }
 }
 
 exports.processPendingSessions = function() {
@@ -233,25 +239,7 @@ exports.processPendingSessions = function() {
         }
         for(var i=0; i<sessions.length; ++i) {
             for(var j=0; j<sessions[i].geos.length; ++j) {
-                var geo = sessions[i].geos[j]
-                var sid = sessions[i]._id
-                for (var uid in connections) {
-                    var client = connections[uid];
-                    if(client.location == geo) {
-                        console.log('Found a farm for', geo)
-                        createNewJob(sid, client.uid, function(err, result) {
-                            if(!err) {
-                                sendRequest(client, 'session', [], function(res) {
-                                    console.log('Sessions submitted to', uid, res)
-                                })
-                                db.collection('sessions').update({_id: sid}, {$set: {status: 'PROCESSED'}}, function (err, result) {
-                                    console.log('Updated status', err, result)
-                                }) 
-                            }
-                        })
-                        
-                    }
-                }
+                exports.createNewJob(sessions[i], sessions[i].geos[j])
             }   
         }
         
